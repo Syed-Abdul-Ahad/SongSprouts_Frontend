@@ -1,117 +1,167 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import Button from './Button';
+import Input from './Input';
 
 const Register = () => {
+  const [accountType, setAccountType] = useState('ambassador');
   const [formData, setFormData] = useState({
-    name: '',
+    fullName: '',
     email: '',
     password: '',
-    confirmPassword: '',
   });
-  const [error, setError] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const { register } = useAuth();
+  const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setErrorMessage('');
 
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+    if (formData.password.length < 8) {
+      setErrorMessage('Password must be at least 8 characters');
       return;
     }
 
     const result = await register({
-      name: formData.name,
+      name: formData.fullName,
       email: formData.email,
       password: formData.password,
+      accountType: accountType,
     });
 
     if (!result.success) {
-      setError(result.error);
+      setErrorMessage(result.error);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
-        <div>
-          <h2 className="text-center text-3xl font-bold text-gray-900">Create Account</h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {error}
-            </div>
-          )}
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                value={formData.name}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
+    <div className="min-h-screen flex">
+      {/* Left Side - Image */}
+      <div className="hidden lg:flex lg:w-1/2 relative">
+        <img 
+          src="/signup.png" 
+          alt="Musician with guitar" 
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Right Side - Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
+        <div className="w-full max-w-md space-y-6">
+          {/* Account Type Toggle */}
+          <div className="flex gap-4 mb-8">
+            <button
+              type="button"
+              onClick={() => setAccountType('artist')}
+              className={`flex-1 text-left p-3 rounded-lg border-2 transition-all ${
+                accountType === 'artist' 
+                  ? 'border-primary bg-secondary/20' 
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  accountType === 'artist' ? 'bg-primary' : 'bg-gray-300'
+                }`}>
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                  </svg>
+                </div>
+                <span className="font-semibold text-gray-900">Artist</span>
+              </div>
+              <p className="text-xs text-gray-600">Create Cover Songs</p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setAccountType('ambassador')}
+              className={`flex-1 text-left p-3 rounded-lg border-2 transition-all ${
+                accountType === 'ambassador' 
+                  ? 'border-primary bg-secondary/20' 
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  accountType === 'ambassador' ? 'bg-primary' : 'bg-gray-300'
+                }`}>
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <span className="font-semibold text-gray-900">Ambassador</span>
+              </div>
+              <p className="text-xs text-gray-600">Request Custom Songs</p>
+            </button>
           </div>
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            Register
-          </button>
-        </form>
+
+          {/* Title */}
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-bold text-gray-900">Create Your Account</h1>
+            <p className="text-gray-600">Join SongSprouts and start your musical journey</p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleFormSubmit} className="space-y-4">
+            {errorMessage && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {errorMessage}
+              </div>
+            )}
+
+            <Input
+              id="fullName"
+              name="fullName"
+              type="text"
+              value={formData.fullName}
+              onChange={handleInputChange}
+              placeholder="Full Name"
+              required
+            />
+
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder="Email Address"
+              required
+            />
+
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              placeholder="Password"
+              required
+              helperText="Minimum of 8 characters (3 types)"
+            />
+
+            <Button type="submit" variant="primary" fullWidth>
+              CREATE {accountType.toUpperCase()} ACCOUNT
+            </Button>
+
+            <p className="text-center text-sm text-gray-600">
+              Already have an account?{' '}
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                className="text-primary font-medium hover:underline"
+              >
+                Sign In here
+              </button>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );
