@@ -41,7 +41,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="max-h-screen flex">
       {/* Left Side - Image */}
       <div className="hidden lg:flex lg:w-1/2 relative">
         <img 
