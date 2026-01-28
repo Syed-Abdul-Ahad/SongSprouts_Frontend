@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import Button from './Button';
-import Input from './Input';
+import Button from '../components/Button';
+import Input from '../components/Input';
 
 const Register = () => {
   const [accountType, setAccountType] = useState('ambassador');
