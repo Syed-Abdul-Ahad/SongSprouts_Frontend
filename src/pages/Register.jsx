@@ -5,7 +5,7 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 
 const Register = () => {
-  const [accountType, setAccountType] = useState('ambassador');
+  const [accountType, setAccountType] = useState('artist');
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -47,7 +47,7 @@ const Register = () => {
         <img 
           src="/signup.png" 
           alt="Musician with guitar" 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-left"
         />
       </div>
 
@@ -59,7 +59,7 @@ const Register = () => {
             <button
               type="button"
               onClick={() => setAccountType('artist')}
-              className={`flex-1 text-left p-3 rounded-lg border-2 transition-all ${
+              className={`flex-1 text-left p-3 rounded-[40px] border-2 transition-all ${
                 accountType === 'artist' 
                   ? 'border-primary bg-secondary/20' 
                   : 'border-gray-200 hover:border-gray-300'
@@ -81,7 +81,7 @@ const Register = () => {
             <button
               type="button"
               onClick={() => setAccountType('ambassador')}
-              className={`flex-1 text-left p-3 rounded-lg border-2 transition-all ${
+              className={`flex-1 text-left p-3 rounded-[40px] border-2 transition-all ${
                 accountType === 'ambassador' 
                   ? 'border-primary bg-secondary/20' 
                   : 'border-gray-200 hover:border-gray-300'
@@ -123,6 +123,7 @@ const Register = () => {
               onChange={handleInputChange}
               placeholder="Full Name"
               required
+              className="rounded-3xl"
             />
 
             <Input
@@ -133,6 +134,7 @@ const Register = () => {
               onChange={handleInputChange}
               placeholder="Email Address"
               required
+              className="rounded-3xl"
             />
 
             <Input
@@ -144,6 +146,7 @@ const Register = () => {
               placeholder="Password"
               required
               helperText="Minimum of 8 characters (3 types)"
+              className="rounded-3xl"
             />
 
             <Button type="submit" variant="primary" fullWidth>

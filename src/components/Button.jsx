@@ -6,7 +6,7 @@ const Button = ({
   onClick,
   disabled = false 
 }) => {
-  const baseStyles = 'py-3 px-6 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
+  const baseStyles = 'py-3 px-6 rounded-3xl font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
   
   const variants = {
     primary: 'bg-primary text-white hover:bg-primary/90 focus:ring-primary disabled:bg-primary/50',
