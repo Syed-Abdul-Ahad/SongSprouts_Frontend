@@ -22,18 +22,33 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
-        <div>
-          <h2 className="text-center text-3xl font-bold text-gray-900">Sign in</h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
-          <div className="space-y-4">
+    <div className="max-h-screen flex">
+      {/* Left Side - Image */}
+      <div className="hidden lg:flex lg:w-1/2 relative">
+        <img 
+          src="/signup.png" 
+          alt="Musician with guitar" 
+          className="w-full h-full object-left"
+        />
+      </div>
+
+      {/* Right Side - Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
+        <div className="w-full max-w-md space-y-6">
+          {/* Title */}
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-bold text-gray-900">Sign in to your account</h1>
+            <p className="text-gray-600">Enter your credentials to continue</p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
             <Input
               id="email"
               name="email"
@@ -42,8 +57,9 @@ const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email Address"
               required
+              className="rounded-3xl"
             />
-            
+
             <Input
               id="password"
               name="password"
@@ -52,23 +68,35 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               required
+              className="rounded-3xl"
             />
-          </div>
-          <Button type="submit" variant="primary" fullWidth>
-            Sign in
-          </Button>
-          
-          <p className="text-center text-sm text-gray-600">
-            Don't have an account?{' '}
-            <button
-              type="button"
-              onClick={() => navigate('/register')}
-              className="text-primary font-medium hover:underline"
-            >
-              Create Account
-            </button>
-          </p>
-        </form>
+
+            <div className="text-right">
+              <button
+                type="button"
+                onClick={() => navigate('/forgot-password')}
+                className="text-sm text-gray-600 hover:text-primary"
+              >
+                Forgot password?
+              </button>
+            </div>
+
+            <Button type="submit" variant="primary" fullWidth>
+              SIGN IN
+            </Button>
+
+            <p className="text-center text-sm text-gray-600">
+              Don't have an account?{' '}
+              <button
+                type="button"
+                onClick={() => navigate('/register')}
+                className="text-primary font-medium hover:underline"
+              >
+                Sign up here
+              </button>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );
