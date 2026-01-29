@@ -1,24 +1,30 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import Button from '../components/Button';
 import Input from '../components/Input';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setIsLoading(true);
     
     const result = await login({ email, password });
-    if (!result.success) {
-      setError(result.error);
+    
+    if (result.success) {
+      toast.success('Login successful! Welcome back.');
+    } else {
+      toast.error(result.error || 'Login failed. Please try again.');
     }
+    
+    setIsLoading(false);
   };
 
   return (
@@ -43,12 +49,6 @@ const Login = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
-
             <Input
               id="email"
               name="email"
@@ -57,6 +57,7 @@ const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email Address"
               required
+              disabled={isLoading}
               className="rounded-3xl"
             />
 
@@ -68,6 +69,7 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               required
+              disabled={isLoading}
               className="rounded-3xl"
             />
 
@@ -81,8 +83,8 @@ const Login = () => {
               </button>
             </div>
 
-            <Button type="submit" variant="primary" fullWidth>
-              SIGN IN
+            <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
+              {isLoading ? 'SIGNING IN...' : 'SIGN IN'}
             </Button>
 
             <p className="text-center text-sm text-gray-600">

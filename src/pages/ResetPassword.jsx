@@ -1,25 +1,28 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import Button from '../components/Button';
 import Input from '../components/Input';
+import { authAPI } from '../api/auth';
 
 const ResetPassword = () => {
   const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setMessage('');
+    setIsLoading(true);
     
     try {
-      // TODO: Implement password reset API call
-      // const response = await resetPasswordRequest(email);
-      setMessage('Password reset instructions have been sent to your email');
+      const response = await authAPI.forgotPassword(email);
+      toast.success('Password reset instructions have been sent to your email!');
+      setEmail(''); // Clear the form
     } catch (err) {
-      setError('Failed to send reset instructions. Please try again.');
+      const errorMessage = err.response?.data?.message || 'Failed to send reset instructions. Please try again.';
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -49,7 +52,7 @@ const ResetPassword = () => {
           {/* Info Box */}
           <div className="bg-green-50 border-l-4 border-primary p-4 rounded">
             <div className="flex">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <svg className="h-5 w-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
@@ -69,18 +72,6 @@ const ResetPassword = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {message && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
-                {message}
-              </div>
-            )}
-            
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
-
             <div>
               <Input
                 id="email"
@@ -90,13 +81,14 @@ const ResetPassword = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email Address"
                 required
+                disabled={isLoading}
                 className="rounded-3xl"
               />
               <p className="text-xs text-gray-500 mt-2">Reset email will be sent to this address</p>
             </div>
 
-            <Button type="submit" variant="primary" fullWidth>
-              RESEND INSTRUCTIONS
+            <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
+              {isLoading ? 'SENDING...' : 'SEND INSTRUCTIONS'}
             </Button>
 
             <p className="text-center text-sm text-gray-600">

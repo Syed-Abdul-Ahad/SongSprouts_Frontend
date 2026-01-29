@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import Button from '../components/Button';
 import Input from '../components/Input';
 
@@ -11,7 +12,7 @@ const Register = () => {
     email: '',
     password: '',
   });
-  const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
 
@@ -21,15 +22,16 @@ const Register = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage('');
 
     if (formData.password.length < 8) {
-      setErrorMessage('Password must be at least 8 characters');
+      toast.error('Password must be at least 8 characters');
       return;
     }
 
     // Only process artist signups for now
     if (accountType === 'artist') {
+      setIsLoading(true);
+      
       const result = await register({
         fullname: formData.fullName,
         email: formData.email,
@@ -38,13 +40,15 @@ const Register = () => {
       });
 
       if (result.success) {
+        toast.success('Account created successfully! Please wait for approval.');
         // Redirect to pending approval page for artists
         navigate('/pending-approval');
       } else {
-        setErrorMessage(result.error);
+        toast.error(result.error || 'Registration failed. Please try again.');
+        setIsLoading(false);
       }
     } else {
-      setErrorMessage('Ambassador signup is coming soon!');
+      toast.info('Ambassador signup is coming soon!');
     }
   };
 
@@ -117,12 +121,6 @@ const Register = () => {
 
           {/* Form */}
           <form onSubmit={handleFormSubmit} className="space-y-4">
-            {errorMessage && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {errorMessage}
-              </div>
-            )}
-
             <Input
               id="fullName"
               name="fullName"
@@ -131,6 +129,7 @@ const Register = () => {
               onChange={handleInputChange}
               placeholder="Full Name"
               required
+              disabled={isLoading}
               className="rounded-3xl"
             />
 
@@ -142,6 +141,7 @@ const Register = () => {
               onChange={handleInputChange}
               placeholder="Email Address"
               required
+              disabled={isLoading}
               className="rounded-3xl"
             />
 
@@ -153,12 +153,13 @@ const Register = () => {
               onChange={handleInputChange}
               placeholder="Password"
               required
+              disabled={isLoading}
               helperText="Minimum of 8 characters (3 types)"
               className="rounded-3xl"
             />
 
-            <Button type="submit" variant="primary" fullWidth>
-              CREATE {accountType.toUpperCase()} ACCOUNT
+            <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
+              {isLoading ? 'CREATING ACCOUNT...' : `CREATE ${accountType.toUpperCase()} ACCOUNT`}
             </Button>
 
             <p className="text-center text-sm text-gray-600">

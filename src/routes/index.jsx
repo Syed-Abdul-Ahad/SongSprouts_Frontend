@@ -14,7 +14,7 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ResetPassword />} />
-      <Route path="/reset-password" element={<CreateNewPassword />} />
+      <Route path="/reset-password/:token" element={<CreateNewPassword />} />
       <Route path="/pending-approval" element={<PendingApproval />} />
       
       {/* Protected Routes */}

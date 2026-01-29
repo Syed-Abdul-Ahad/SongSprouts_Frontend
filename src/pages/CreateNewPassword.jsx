@@ -1,36 +1,53 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import Button from '../components/Button';
 import Input from '../components/Input';
+import { authAPI } from '../api/auth';
 
 const CreateNewPassword = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [searchParams] = useSearchParams();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
+  const { token } = useParams();
   const navigate = useNavigate();
+
+  // Check if passwords match (only show if confirm password has content)
+  const passwordsMatch = confirmPassword === '' || newPassword === confirmPassword;
+  const isPasswordLongEnough = newPassword.length >= 8 || newPassword.length === 0;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setShowValidation(true);
 
+    // Validate password length
     if (newPassword.length < 8) {
-      setError('Password must be at least 8 characters');
+      toast.error('Password must be at least 8 characters');
       return;
     }
 
+    // Validate passwords match
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match');
+      toast.error('Passwords do not match! Please check and try again.');
       return;
     }
+
+    // If all validations pass, proceed with API call
+    setIsLoading(true);
 
     try {
-      // TODO: Implement password reset API call with token from URL
-      // const token = searchParams.get('token');
-      // await resetPassword(token, newPassword);
-      navigate('/login');
+      await authAPI.resetPassword(token, newPassword);
+      toast.success('Password has been reset successfully!');
+      
+      // Redirect to login after a short delay
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
     } catch (err) {
-      setError('Failed to reset password. The link may have expired.');
+      const errorMessage = err.response?.data?.message || 'Failed to reset password. The link may have expired.';
+      toast.error(errorMessage);
+      setIsLoading(false);
     }
   };
 
@@ -59,36 +76,56 @@ const CreateNewPassword = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
+            <div>
+              <Input
+                id="newPassword"
+                name="newPassword"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="New Password"
+                required
+                disabled={isLoading}
+                className="rounded-3xl"
+              />
+              {showValidation && !isPasswordLongEnough && (
+                <p className="text-xs text-red-500 mt-1 ml-4">
+                  Password must be at least 8 characters
+                </p>
+              )}
+            </div>
 
-            <Input
-              id="newPassword"
-              name="newPassword"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="New Password"
-              required
-              className="rounded-3xl"
-            />
+            <div>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm Password"
+                required
+                disabled={isLoading}
+                className="rounded-3xl"
+              />
+              {showValidation && confirmPassword && !passwordsMatch && (
+                <p className="text-xs text-red-500 mt-1 ml-4">
+                  Passwords do not match
+                </p>
+              )}
+              {confirmPassword && passwordsMatch && newPassword.length >= 8 && (
+                <p className="text-xs text-green-600 mt-1 ml-4">
+                  ✓ Passwords match
+                </p>
+              )}
+            </div>
 
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm Password"
-              required
-              className="rounded-3xl"
-            />
-
-            <Button type="submit" variant="primary" fullWidth>
-              CHANGE PASSWORD
+            <Button 
+              type="submit" 
+              variant="primary" 
+              fullWidth 
+              disabled={isLoading || (showValidation && (!passwordsMatch || !isPasswordLongEnough))}
+            >
+              {isLoading ? 'CHANGING PASSWORD...' : 'CHANGE PASSWORD'}
             </Button>
           </form>
         </div>
