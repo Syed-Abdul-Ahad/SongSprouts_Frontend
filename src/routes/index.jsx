@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Dashboard from '../pages/Dashboard';
+import ResetPassword from '../pages/ResetPassword';
+import CreateNewPassword from '../pages/CreateNewPassword';
 import ProtectedRoute from './ProtectedRoute';
 
 const AppRoutes = () => {
@@ -10,6 +12,8 @@ const AppRoutes = () => {
       {/* Public Routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ResetPassword />} />
+      <Route path="/reset-password" element={<CreateNewPassword />} />
       
       {/* Protected Routes */}
       <Route
