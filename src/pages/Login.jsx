@@ -27,7 +27,7 @@ const Login = () => {
       <div className="hidden lg:flex lg:w-1/2 relative">
         <img 
           src="/signup.png" 
-          alt="Musician with guitar" 
+          alt="Musician with guitar illustration" 
           className="w-full h-full object-left"
         />
       </div>
