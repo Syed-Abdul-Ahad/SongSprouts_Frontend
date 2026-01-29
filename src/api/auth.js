@@ -3,7 +3,7 @@ import api from './axios';
 export const authAPI = {
   // Register new user
   register: async (userData) => {
-    const response = await api.post('/auth/register', userData);
+    const response = await api.post('/auth/signup', userData);
     return response.data;
   },
 

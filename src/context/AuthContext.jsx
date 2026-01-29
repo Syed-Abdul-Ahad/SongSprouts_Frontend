@@ -50,9 +50,12 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const data = await authAPI.register(userData);
-      localStorage.setItem('token', data.token);
-      setUser(data.user);
-      return { success: true };
+      // Only store token and user if they exist (for non-pending accounts)
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        setUser(data.user);
+      }
+      return { success: true, data };
     } catch (error) {
       return { 
         success: false, 

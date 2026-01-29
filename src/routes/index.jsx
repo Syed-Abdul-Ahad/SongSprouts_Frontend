@@ -4,6 +4,7 @@ import Register from '../pages/Register';
 import Dashboard from '../pages/Dashboard';
 import ResetPassword from '../pages/ResetPassword';
 import CreateNewPassword from '../pages/CreateNewPassword';
+import PendingApproval from '../pages/PendingApproval';
 import ProtectedRoute from './ProtectedRoute';
 
 const AppRoutes = () => {
@@ -14,6 +15,7 @@ const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ResetPassword />} />
       <Route path="/reset-password" element={<CreateNewPassword />} />
+      <Route path="/pending-approval" element={<PendingApproval />} />
       
       {/* Protected Routes */}
       <Route

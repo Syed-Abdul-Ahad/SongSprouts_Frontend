@@ -28,15 +28,23 @@ const Register = () => {
       return;
     }
 
-    const result = await register({
-      name: formData.fullName,
-      email: formData.email,
-      password: formData.password,
-      accountType: accountType,
-    });
+    // Only process artist signups for now
+    if (accountType === 'artist') {
+      const result = await register({
+        fullname: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        role: 'artist',
+      });
 
-    if (!result.success) {
-      setErrorMessage(result.error);
+      if (result.success) {
+        // Redirect to pending approval page for artists
+        navigate('/pending-approval');
+      } else {
+        setErrorMessage(result.error);
+      }
+    } else {
+      setErrorMessage('Ambassador signup is coming soon!');
     }
   };
 
