@@ -17,14 +17,14 @@ const ArtistCard = ({
 
   return (
     <div 
-      className="group relative w-full max-w-[280px] cursor-pointer transition-transform duration-300 hover:scale-105 mx-auto"
+      className="group relative w-full max-w-70 cursor-pointer transition-transform duration-300 hover:scale-105 mx-auto"
       onClick={() => onCardClick?.(artist)}
     >
       {/* Card Container */}
       <div className="relative overflow-hidden rounded-3xl bg-card shadow-xl text-black">
         
         {/* Artist Image */}
-        <div className="relative h-[200px] w-full overflow-hidden">
+        <div className="relative h-50 w-full overflow-hidden">
           <img 
             src={imageUrl || '/placeholder-artist.jpg'} 
             alt={name}
@@ -34,7 +34,7 @@ const ArtistCard = ({
         </div>
 
         {/* Content Section */}
-        <div className="relative px-4 pb-4 pt-4">
+        <div className="relative px-3 pb-4 pt-4">
           {/* Artist Name */}
           <h3 className="mb-2 text-xl font-extrabold">
             {name}
@@ -71,7 +71,7 @@ const ArtistCard = ({
         </div>
 
         {/* Hover Effect Border */}
-        <div className="absolute inset-0 rounded-3xl border-2 border-transparent transition-colors duration-300 group-hover:border-[#D1E2DE]" />
+        <div className="absolute inset-0 rounded-3xl border-2 border-transparent transition-colors duration-300 group-hover:border-outline" />
       </div>
     </div>
   );

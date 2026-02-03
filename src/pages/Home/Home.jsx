@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
 import { ArtistCard } from './subcomponents';
 
 const Home = () => {
+  const navigate = useNavigate();
+  
   // Pagination state
   const [displayedArtists, setDisplayedArtists] = useState([]);
   const [page, setPage] = useState(1);
@@ -96,7 +99,8 @@ const Home = () => {
 
   const handleArtistClick = (artist) => {
     console.log('Artist clicked:', artist);
-    // TODO: Navigate to artist detail page or open modal
+    // Navigate to artist profile page
+    navigate(`/artist/${artist.id}`);
   };
 
   return (

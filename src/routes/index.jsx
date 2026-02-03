@@ -7,6 +7,7 @@ import CreateNewPassword from '../pages/CreateNewPassword';
 import PendingApproval from '../pages/PendingApproval';
 import ProtectedRoute from './ProtectedRoute';
 import Home from '../pages/Home/Home';
+import ArtistProfile from '../pages/Artist Profile/ArtistProfile';
 
 const AppRoutes = () => {
   return (
@@ -28,9 +29,12 @@ const AppRoutes = () => {
         }
       />
       
+      {/* Public Home and Artist Routes */}
+      <Route path="/home" element={<Home />} />
+      <Route path="/artist/:artistId" element={<ArtistProfile />} />
+      
       {/* Default Route */}
       <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="/home" element={<Home />} />
 
       {/* 404 Route */}
       <Route path="*" element={<Navigate to="/login" replace />} />
