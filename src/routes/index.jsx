@@ -6,6 +6,7 @@ import ResetPassword from '../pages/ResetPassword';
 import CreateNewPassword from '../pages/CreateNewPassword';
 import PendingApproval from '../pages/PendingApproval';
 import ProtectedRoute from './ProtectedRoute';
+import Home from '../pages/Home/Home';
 
 const AppRoutes = () => {
   return (
@@ -29,7 +30,8 @@ const AppRoutes = () => {
       
       {/* Default Route */}
       <Route path="/" element={<Navigate to="/login" replace />} />
-      
+      <Route path="/home" element={<Home />} />
+
       {/* 404 Route */}
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>

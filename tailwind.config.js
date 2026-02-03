@@ -9,6 +9,10 @@ export default {
         primary: 'var(--color-primary)',
         secondary: 'var(--color-secondary)',
       },
+      fontFamily: {
+        'grift': ['Grift', 'system-ui', 'sans-serif'],
+        'sans': ['Grift', 'system-ui', 'sans-serif'],
+      },
     },
   },
   plugins: [],
