@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../api/auth';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Button from '../components/Button';
@@ -13,7 +14,7 @@ const Register = () => {
     password: '',
   });
   const [isLoading, setIsLoading] = useState(false);
-  const { register } = useAuth();
+  const { setUser } = useAuth();
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -32,19 +33,20 @@ const Register = () => {
     if (accountType === 'artist') {
       setIsLoading(true);
       
-      const result = await register({
-        fullname: formData.fullName,
-        email: formData.email,
-        password: formData.password,
-        role: 'artist',
-      });
-
-      if (result.success) {
-        toast.success('Account created successfully! Please wait for approval.');
-        // Redirect to pending approval page for artists
-        navigate('/pending-approval');
-      } else {
-        toast.error(result.error || 'Registration failed. Please try again.');
+      try {
+        const data = await authAPI.register({
+          fullname: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          role: 'artist',
+        });
+        setUser(data.user);
+        toast.success('Account created successfully!');
+        // Redirect to artist onboarding page
+        navigate('/artist-onboarding');
+      } catch (error) {
+        toast.error(error.response?.data?.message || 'Registration failed. Please try again.');
+      } finally {
         setIsLoading(false);
       }
     } else {

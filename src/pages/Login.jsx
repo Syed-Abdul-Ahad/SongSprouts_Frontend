@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../api/auth';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Button from '../components/Button';
@@ -9,22 +10,24 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { setUser } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     
-    const result = await login({ email, password });
-    
-    if (result.success) {
+    try {
+      const data = await authAPI.login({ email, password });
+      console.log('Login successful, user data:', data);
+      setUser(data?.data?.user);
       toast.success('Login successful! Welcome back.');
-    } else {
-      toast.error(result.error || 'Login failed. Please try again.');
+      navigate('/dashboard');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   return (

@@ -1,7 +1,23 @@
 import { Toaster } from 'react-hot-toast';
+import { useEffect } from 'react';
+import { useAuth } from './context/AuthContext';
 import AppRoutes from './routes';
 
 function App() {
+  const { checkAuth, isCheckingAuth, user } = useAuth();
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  if (isCheckingAuth && !user) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <>
       <AppRoutes />
