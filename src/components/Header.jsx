@@ -18,9 +18,9 @@ const Header = () => {
         {/* Greeting Section */}
         <div className="shrink-0">
           <h1 className="text-3xl font-bold text-gray-800">
-            Hello, <span className="text-primary">{user?.name || 'Guest'}!</span>
+            <span className="text-primary">Hello, {user?.fullname || 'Guest'}!</span>
           </h1>
-          <p className="text-sm text-gray-600 mt-1">Welcome to Music</p>
+          <p className="text-sm text-gray-600 mt-1">Welcome to SongSprouts</p>
         </div>
 
         {/* Search and Actions Section */}

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { artistAPI } from '../api/artist';
 import toast from 'react-hot-toast';
 import Button from '../components/Button';
+import Header from '../components/Header';
 
 const ArtistOnboarding = () => {
   const navigate = useNavigate();
@@ -191,13 +192,13 @@ const ArtistOnboarding = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      {/* <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-primary">Hello, {user?.name || 'jack'}!</h1>
             <p className="text-gray-600 text-sm mt-1">Welcome to Song Sprouts</p>
           </div>
-          {/* <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
             <div className="relative">
               <input
                 type="text"
@@ -219,9 +220,10 @@ const ArtistOnboarding = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-          </div> */}
+          </div>
         </div>
-      </div>
+      </div> */}
+      <Header user={user} />
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-6">
