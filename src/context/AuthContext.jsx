@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { authAPI } from '../api/auth';
 
 const AuthContext = createContext(null);
@@ -13,73 +13,34 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   const checkAuth = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const userData = await authAPI.getCurrentUser();
-        setUser(userData);
-      }
+      const userData = await authAPI.getCurrentUser();
+      setUser(userData?.data?.user || userData?.data);
     } catch (error) {
-      localStorage.removeItem('token');
+      setUser(null);
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const login = async (credentials) => {
-    try {
-      const data = await authAPI.login(credentials);
-      localStorage.setItem('token', data.token);
-      setUser(data.user);
-      return { success: true };
-    } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.message || 'Login failed' 
-      };
-    }
-  };
-
-  const register = async (userData) => {
-    try {
-      const data = await authAPI.register(userData);
-      // Only store token and user if they exist (for non-pending accounts)
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-        setUser(data.user);
-      }
-      return { success: true, data };
-    } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.message || 'Registration failed' 
-      };
+      setIsCheckingAuth(false);
     }
   };
 
   const logout = async () => {
     try {
       await authAPI.logout();
+      setUser(null);
     } catch (error) {
       console.error('Logout error:', error);
-    } finally {
-      localStorage.removeItem('token');
       setUser(null);
     }
   };
 
   const value = {
     user,
-    loading,
-    login,
-    register,
+    setUser,
+    isCheckingAuth,
+    checkAuth,
     logout,
     isAuthenticated: !!user,
   };

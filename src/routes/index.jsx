@@ -5,6 +5,7 @@ import Dashboard from '../pages/Dashboard';
 import ResetPassword from '../pages/ResetPassword';
 import CreateNewPassword from '../pages/CreateNewPassword';
 import PendingApproval from '../pages/PendingApproval';
+import ArtistOnboarding from '../pages/ArtistOnboarding';
 import ProtectedRoute from './ProtectedRoute';
 import Home from '../pages/Home/Home';
 import ArtistProfile from '../pages/Artist Profile/ArtistProfile';
@@ -17,6 +18,7 @@ const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ResetPassword />} />
       <Route path="/reset-password/:token" element={<CreateNewPassword />} />
+      <Route path="/artist-onboarding" element={<ArtistOnboarding />} />
       <Route path="/pending-approval" element={<PendingApproval />} />
       
       {/* Protected Routes */}
