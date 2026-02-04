@@ -228,7 +228,7 @@ const ArtistOnboarding = () => {
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-6">
         <div className='flex mt-5 mb-10 gap-4 items-center'>
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -258,7 +258,7 @@ const ArtistOnboarding = () => {
         {/* Store Information Section */}
         <div className="bg-gray-100 rounded-lg p-6 mb-4">
           <div className="flex gap-4">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center ">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -350,7 +350,7 @@ const ArtistOnboarding = () => {
         {/* Musical Genres Section */}
         <div className="bg-gray-100 rounded-lg p-6 mb-4">
           <div className="flex gap-4">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
               </svg>
@@ -388,7 +388,7 @@ const ArtistOnboarding = () => {
         {/* Artist Biography Section */}
         <div className="bg-gray-100 rounded-lg p-6 mb-4">
           <div className="flex gap-4">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
@@ -418,7 +418,7 @@ const ArtistOnboarding = () => {
         {/* Social Links Section */}
         <div className="bg-gray-100 rounded-lg p-6 mb-6">
           <div className="flex gap-4">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
               </svg>
@@ -495,7 +495,7 @@ const ArtistOnboarding = () => {
               </div>
 
               <div className="flex items-start gap-2 text-xs text-gray-600 mt-4">
-                <svg className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-4 h-4 text-primary mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
                 <p>Only usernames are stored. We'll never access your accounts.</p>

@@ -75,10 +75,10 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center gap-2 py-1 px-1 rounded-2xl transition-all ${
+              className={`flex flex-col items-center gap-2 py-1 px-1 transition-all ${
                 activeTab === item.id 
-                  ? 'bg-white text-primary' 
-                  : 'text-white hover:bg-white/10'
+                  ? 'bg-white text-primary rounded-r-lg' 
+                  : 'text-white hover:bg-white/10 rounded-xl'
               }`}
             >
               {item.icon}
