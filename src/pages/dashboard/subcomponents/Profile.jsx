@@ -17,6 +17,10 @@ const Profile = () => {
   const [addons, setAddons] = useState([]);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, type: '', id: '', name: '' });
   const [deleting, setDeleting] = useState(false);
+  const [editModal, setEditModal] = useState({ isOpen: false, type: '', data: null });
+  const [editFormData, setEditFormData] = useState({});
+  const [customFields, setCustomFields] = useState([]);
+  const [updating, setUpdating] = useState(false);
 
   const [formData, setFormData] = useState({
     emailAddress: '',
@@ -213,6 +217,103 @@ const Profile = () => {
       toast.error(error.response?.data?.message || 'Failed to delete');
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const openEditModal = (type, data) => {
+    setEditModal({ isOpen: true, type, data });
+    
+    if (type === 'service') {
+      setEditFormData({
+        name: data.name || '',
+        price: data.price || '',
+        description: data.description || '',
+        deliveryType: data.deliveryType || '',
+        deliveryTimeMin: data.deliveryTime?.minimum || '',
+        deliveryTimeMax: data.deliveryTime?.maximum || '',
+      });
+      setCustomFields(data.customFields ? Object.entries(data.customFields).map(([key, value]) => ({ key, value })) : []);
+    } else if (type === 'addon') {
+      setEditFormData({
+        name: data.name || '',
+        price: data.price || '',
+        description: data.description || '',
+      });
+      setCustomFields(data.customFields ? Object.entries(data.customFields).map(([key, value]) => ({ key, value })) : []);
+    }
+  };
+
+  const closeEditModal = () => {
+    setEditModal({ isOpen: false, type: '', data: null });
+    setEditFormData({});
+    setCustomFields([]);
+  };
+
+  const handleEditInputChange = (e) => {
+    setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
+  };
+
+  const addCustomField = () => {
+    setCustomFields([...customFields, { key: '', value: '' }]);
+  };
+
+  const removeCustomField = (index) => {
+    setCustomFields(customFields.filter((_, i) => i !== index));
+  };
+
+  const updateCustomField = (index, field, value) => {
+    const updated = [...customFields];
+    updated[index][field] = value;
+    setCustomFields(updated);
+  };
+
+  const handleUpdate = async () => {
+    if (!editModal.data?._id) return;
+    
+    setUpdating(true);
+    try {
+      const customFieldsObject = customFields.reduce((acc, field) => {
+        if (field.key.trim()) {
+          acc[field.key] = field.value;
+        }
+        return acc;
+      }, {});
+
+      if (editModal.type === 'service') {
+        const updateData = {
+          name: editFormData.name,
+          price: Number(editFormData.price),
+          description: editFormData.description,
+          deliveryType: editFormData.deliveryType,
+          deliveryTime: {
+            minimum: Number(editFormData.deliveryTimeMin),
+            maximum: Number(editFormData.deliveryTimeMax),
+          },
+          customFields: customFieldsObject,
+        };
+        
+        await artistAPI.updateServiceOffering(editModal.data._id, updateData);
+        setServices(services.map(s => s._id === editModal.data._id ? { ...s, ...updateData } : s));
+        toast.success('Service updated successfully');
+      } else if (editModal.type === 'addon') {
+        const updateData = {
+          name: editFormData.name,
+          price: Number(editFormData.price),
+          description: editFormData.description,
+          customFields: customFieldsObject,
+        };
+        
+        await artistAPI.updateAddon(editModal.data._id, updateData);
+        setAddons(addons.map(a => a._id === editModal.data._id ? { ...a, ...updateData } : a));
+        toast.success('Add-on updated successfully');
+      }
+      
+      closeEditModal();
+    } catch (error) {
+      console.error('Error updating:', error);
+      toast.error(error.response?.data?.message || 'Failed to update');
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -516,8 +617,19 @@ const Profile = () => {
                   </svg>
                   <span>{service.deliveryType}</span>
                 </div>
+                {service.customFields && Object.entries(service.customFields).map(([key, value]) => (
+                  <div key={key} className="flex items-center gap-2 text-sm">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span>{key}: {value}</span>
+                  </div>
+                ))}
               </div>
-              <button className="w-full bg-white text-primary py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors">
+              <button 
+                onClick={() => openEditModal('service', service)}
+                className="w-full bg-white text-primary py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+              >
                 CUSTOMIZE THIS SERVICE
               </button>
             </div>
@@ -534,7 +646,7 @@ const Profile = () => {
             <div key={addon._id || index} className="bg-primary rounded-2xl overflow-hidden relative">
               <button
                 onClick={() => openDeleteModal('addon', addon._id, addon.name)}
-                className="absolute top-4 right-4 w-8 h-8 bg-white/20 hover:bg-red-500 rounded-full flex items-center justify-center transition-colors z-10"
+                className="absolute top-4 right-4 w-8 h-8 bg-white/20 hover:bg-red-500 rounded-full flex items-center justify-center transition-colors z-20"
                 title="Delete add-on"
               >
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -542,17 +654,40 @@ const Profile = () => {
                 </svg>
               </button>
               <button
-                onClick={() => toggleAddon(index)}
-                className="w-full px-6 py-4 pr-14 flex items-center justify-between text-white hover:bg-primary/90 transition-colors"
+                onClick={() => openEditModal('addon', addon)}
+                className="absolute top-4 right-14 w-8 h-8 bg-white/20 hover:bg-primary/80 rounded-full flex items-center justify-center transition-colors z-20"
+                title="Edit add-on"
               >
-                <div className="text-left">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+              <button
+                onClick={() => toggleAddon(index)}
+                className="w-full px-6 py-4 pr-28 flex items-center justify-between text-white hover:bg-primary/90 transition-colors"
+              >
+                <div className="text-left flex-1">
                   <h4 className="font-bold text-lg">{addon.name}</h4>
                   {expandedAddons.includes(index) && (
-                    <p className="text-white/80 text-sm mt-2">{addon.description}</p>
+                    <>
+                      <p className="text-white/80 text-sm mt-2">{addon.description}</p>
+                      {addon.customFields && Object.keys(addon.customFields).length > 0 && (
+                        <div className="mt-3 space-y-1.5">
+                          {Object.entries(addon.customFields).map(([key, value]) => (
+                            <div key={key} className="flex items-center gap-2 text-sm text-white/90">
+                              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                              <span>{key}: {value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className="font-bold text-lg">+ ${addon.price}</span>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="font-bold text-lg whitespace-nowrap">+ ${addon.price}</span>
                   <svg 
                     className={`w-6 h-6 transition-transform ${expandedAddons.includes(index) ? 'rotate-45' : ''}`}
                     fill="none" 
@@ -601,6 +736,228 @@ const Profile = () => {
                 className="flex-1 px-6 py-3 bg-red-600 text-white rounded-full font-semibold hover:bg-red-700 transition-colors disabled:opacity-50"
               >
                 {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editModal.isOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-xl">
+            {/* Header - Fixed */}
+            <div className=" bg-white px-6 py-4 flex items-center justify-between rounded-t-3xl">
+              <h3 className="text-xl font-bold text-gray-900">
+                Edit {editModal.type === 'service' ? 'Service Offering' : 'Add-on'}
+              </h3>
+              <button
+                onClick={closeEditModal}
+                disabled={updating}
+                className="text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Scrollable Form Content */}
+            <div className="flex-1 overflow-y-auto px-6 py-5">
+              <div className="space-y-5">
+                {/* Name and Price Row */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {editModal.type === 'service' ? 'Service' : 'Add-on'} Name
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={editFormData.name}
+                      onChange={handleEditInputChange}
+                      disabled={updating}
+                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
+                      placeholder={`Enter ${editModal.type === 'service' ? 'service' : 'add-on'} name`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      Price ($)
+                    </label>
+                    <input
+                      type="number"
+                      name="price"
+                      value={editFormData.price}
+                      onChange={handleEditInputChange}
+                      disabled={updating}
+                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
+                      placeholder="Enter price"
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+                </div>
+
+                {/* Description - Full Width */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                    Description
+                  </label>
+                  <textarea
+                    name="description"
+                    value={editFormData.description}
+                    onChange={handleEditInputChange}
+                    disabled={updating}
+                    rows="2"
+                    className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 resize-none text-sm"
+                    placeholder="Enter description"
+                  />
+                </div>
+
+                {/* Service-specific fields */}
+                {editModal.type === 'service' && (
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                        Delivery Type
+                      </label>
+                      <input
+                        type="text"
+                        name="deliveryType"
+                        value={editFormData.deliveryType}
+                        onChange={handleEditInputChange}
+                        disabled={updating}
+                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
+                        placeholder="e.g., Digital, Physical, Dry + processed vocals"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                        Min Time (days)
+                      </label>
+                      <input
+                        type="number"
+                        name="deliveryTimeMin"
+                        value={editFormData.deliveryTimeMin}
+                        onChange={handleEditInputChange}
+                        disabled={updating}
+                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
+                        placeholder="Min"
+                        min="0"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                        Max Time (days)
+                      </label>
+                      <input
+                        type="number"
+                        name="deliveryTimeMax"
+                        value={editFormData.deliveryTimeMax}
+                        onChange={handleEditInputChange}
+                        disabled={updating}
+                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
+                        placeholder="Max"
+                        min="0"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Custom Fields Section - For both services and add-ons */}
+                <div className="pt-5 mt-2">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-base font-bold text-gray-900">
+                      Custom Fields
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={addCustomField}
+                      disabled={updating}
+                      className="px-4 py-2 bg-primary text-white rounded-full text-xs font-semibold hover:bg-primary-color/90 transition-colors disabled:opacity-50"
+                    >
+                      + Add Field
+                    </button>
+                  </div>
+                  
+                  {customFields.length > 0 ? (
+                    <div className="space-y-2.5">
+                      {customFields.map((field, index) => (
+                        <div key={index} className="flex gap-2.5 items-center bg-gray-50 p-3 rounded-lg">
+                          <div className="flex-1">
+                            <input
+                              type="text"
+                              value={field.key}
+                              onChange={(e) => updateCustomField(index, 'key', e.target.value)}
+                              disabled={updating}
+                              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-white text-sm"
+                              placeholder="Field name"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <input
+                              type="text"
+                              value={field.value}
+                              onChange={(e) => updateCustomField(index, 'value', e.target.value)}
+                              disabled={updating}
+                              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-white text-sm"
+                              placeholder="Value"
+                              maxLength="200"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeCustomField(index)}
+                            disabled={updating}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 flex-shrink-0"
+                            title="Remove field"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                      <p className="text-gray-500 text-xs font-medium">No custom fields</p>
+                      <p className="text-gray-400 text-xs mt-0.5">Click "Add Field" button above</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer with Action Buttons - Fixed */}
+            <div className=" bg-gray-50 px-6 py-4 flex gap-3 rounded-b-3xl">
+              <button
+                onClick={closeEditModal}
+                disabled={updating}
+                className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-full font-semibold hover:bg-white transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdate}
+                disabled={updating}
+                className="flex-1 px-6 py-3 bg-primary text-white rounded-full font-semibold hover:bg-primary-color/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {updating ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Updating...
+                  </>
+                ) : (
+                  'Update'
+                )}
               </button>
             </div>
           </div>

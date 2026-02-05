@@ -29,4 +29,16 @@ export const artistAPI = {
     const response = await api.delete(`/artists/addons/${addonId}`);
     return response.data;
   },
+
+  // Update service offering
+  updateServiceOffering: async (serviceId, data) => {
+    const response = await api.patch(`/artists/service-offerings/${serviceId}`, data);
+    return response.data;
+  },
+
+  // Update addon
+  updateAddon: async (addonId, data) => {
+    const response = await api.patch(`/artists/addons/${addonId}`, data);
+    return response.data;
+  },
 };
