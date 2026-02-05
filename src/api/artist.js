@@ -8,11 +8,12 @@ export const artistAPI = {
   },
 
   // Update artist profile (onboarding)
-  updateProfile: async (userId, formData) => {
-    const response = await api.patch(`/artists/profile/${userId}`, formData, {
+  updateProfile: async (formData) => {
+    const response = await api.patch(`/artists/profile`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      
     });
     return response.data;
   },
