@@ -13,6 +13,8 @@ const Profile = () => {
   const [profilePicture, setProfilePicture] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const fileInputRef = useRef(null);
+  const [services, setServices] = useState([]);
+  const [addons, setAddons] = useState([]);
 
   const [formData, setFormData] = useState({
     emailAddress: '',
@@ -31,56 +33,6 @@ const Profile = () => {
     'Pop', 'Rock', 'Hip Hop', 'R&B', 'Country', 'Jazz', 'Electronic', 
     'Folk', 'Indie', 'Christian', 'Acoustic', 'Soul', 'Blues', 
     'K-Pop', 'Lo-Fi', 'Alternative'
-  ];
-
-  const services = [
-    {
-      title: 'Custom Song',
-      price: '$350',
-      description: 'A fully produced original song written specifically for you or your project. Includes live writing, melody composition, and professional recording.',
-      features: ['7-14 days delivery', '1 round of revisions'],
-    },
-    {
-      title: 'Feature Verse',
-      price: '$180',
-      description: 'Add a professionally recorded and mastered vocal feature to your existing track. Includes ad-libs, or vocal ad-ons.',
-      features: ['5-7 days delivery', 'Up to 3 provided vocals'],
-    },
-    {
-      title: 'Full Production',
-      price: '$650',
-      description: 'Complete songwriting, vocal recording, mixing, and mastering for one production package. From concept to finished master, ready for release.',
-      features: ['3-4 days delivery', 'Up to 3 provided vocals'],
-    },
-    {
-      title: 'Demo Vocal',
-      price: '$95',
-      description: 'Professional demo recording to test out melodies or lyrics before hiring a more involved or expensive vocalist. Great for songwriters needing a quality reference.',
-      features: ['1-2 days delivery', '24 hr production vocals'],
-    },
-  ];
-
-  const addons = [
-    {
-      title: 'Background Harmonies',
-      price: '+ $50',
-      description: 'Add lush background harmonies to enrich your vocal track with layered depth.',
-    },
-    {
-      title: 'Rush Delivery',
-      price: '+ $75',
-      description: '48-hour turnaround for urgent projects. Perfect for last-minute gifts or deadlines.',
-    },
-    {
-      title: 'Extra Revisions',
-      price: '+ $75',
-      description: 'Two additional revision rounds for fine-tuning. Ensure your song is perfect.',
-    },
-    {
-      title: 'Professional Mixing',
-      price: '+ $125',
-      description: 'Studio-quality mixing of your full track with vocals. Radio-ready sound.',
-    },
   ];
 
   // Fetch artist profile on mount
@@ -109,6 +61,14 @@ const Profile = () => {
           youtube: profileData.socialLinks?.youtube || '',
           websiteUrl: profileData.socialLinks?.websiteUrl || '',
         });
+        
+        // Set services and addons from API
+        if (Array.isArray(profileData.serviceOfferings)) {
+          setServices(profileData.serviceOfferings);
+        }
+        if (Array.isArray(profileData.addOns)) {
+          setAddons(profileData.addOns);
+        }
       } catch (error) {
         console.error('Error fetching profile:', error);
         toast.error('Failed to load profile');
@@ -494,46 +454,54 @@ const Profile = () => {
         
         {/* Service Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          {services.map((service, index) => (
-            <div key={index} className="bg-primary rounded-3xl p-6 text-white flex flex-col">
+          {services.length > 0 ? services.map((service, index) => (
+            <div key={service._id || index} className="bg-primary rounded-3xl p-6 text-white flex flex-col">
               <div className="flex items-start justify-between mb-4">
-                <h4 className="text-xl font-bold">{service.title}</h4>
-                <span className="text-2xl font-bold">{service.price}</span>
+                <h4 className="text-xl font-bold">{service.name}</h4>
+                <span className="text-2xl font-bold">${service.price}</span>
               </div>
               <p className="text-white/90 text-sm mb-4 flex-1">{service.description}</p>
               <div className="space-y-2 mb-4">
-                {service.features.map((feature, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-sm">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span>{feature}</span>
-                  </div>
-                ))}
+                <div className="flex items-center gap-2 text-sm">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>{service.deliveryTime?.minimum}-{service.deliveryTime?.maximum} days delivery</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>{service.deliveryType}</span>
+                </div>
               </div>
               <button className="w-full bg-white text-primary py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors">
-                SELECT SERVICE
+                CUSTOMIZE THIS SERVICE
               </button>
             </div>
-          ))}
+          )) : (
+            <div className="col-span-full text-center py-8 text-gray-500">
+              No services available
+            </div>
+          )}
         </div>
 
         {/* Additional Services / Add-ons */}
         <div className="space-y-3">
-          {addons.map((addon, index) => (
-            <div key={index} className="bg-primary rounded-2xl overflow-hidden">
+          {addons.length > 0 ? addons.map((addon, index) => (
+            <div key={addon._id || index} className="bg-primary rounded-2xl overflow-hidden">
               <button
                 onClick={() => toggleAddon(index)}
                 className="w-full px-6 py-4 flex items-center justify-between text-white hover:bg-primary/90 transition-colors"
               >
                 <div className="text-left">
-                  <h4 className="font-bold text-lg">{addon.title}</h4>
+                  <h4 className="font-bold text-lg">{addon.name}</h4>
                   {expandedAddons.includes(index) && (
                     <p className="text-white/80 text-sm mt-2">{addon.description}</p>
                   )}
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="font-bold text-lg">{addon.price}</span>
+                  <span className="font-bold text-lg">+ ${addon.price}</span>
                   <svg 
                     className={`w-6 h-6 transition-transform ${expandedAddons.includes(index) ? 'rotate-45' : ''}`}
                     fill="none" 
@@ -545,7 +513,11 @@ const Profile = () => {
                 </div>
               </button>
             </div>
-          ))}
+          )) : (
+            <div className="text-center py-8 text-gray-500">
+              No add-ons available
+            </div>
+          )}
         </div>
       </div>
     </div>
