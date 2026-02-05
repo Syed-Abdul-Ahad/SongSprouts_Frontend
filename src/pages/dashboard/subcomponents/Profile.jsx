@@ -17,7 +17,7 @@ const Profile = () => {
   const [addons, setAddons] = useState([]);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, type: '', id: '', name: '' });
   const [deleting, setDeleting] = useState(false);
-  const [editModal, setEditModal] = useState({ isOpen: false, type: '', data: null });
+  const [editModal, setEditModal] = useState({ isOpen: false, type: '', data: null, isCreating: false });
   const [editFormData, setEditFormData] = useState({});
   const [customFields, setCustomFields] = useState([]);
   const [updating, setUpdating] = useState(false);
@@ -220,31 +220,31 @@ const Profile = () => {
     }
   };
 
-  const openEditModal = (type, data) => {
-    setEditModal({ isOpen: true, type, data });
+  const openEditModal = (type, data = null, isCreating = false) => {
+    setEditModal({ isOpen: true, type, data, isCreating });
     
     if (type === 'service') {
       setEditFormData({
-        name: data.name || '',
-        price: data.price || '',
-        description: data.description || '',
-        deliveryType: data.deliveryType || '',
-        deliveryTimeMin: data.deliveryTime?.minimum || '',
-        deliveryTimeMax: data.deliveryTime?.maximum || '',
+        name: data?.name || '',
+        price: data?.price || '',
+        description: data?.description || '',
+        deliveryType: data?.deliveryType || '',
+        deliveryTimeMin: data?.deliveryTime?.minimum || '',
+        deliveryTimeMax: data?.deliveryTime?.maximum || '',
       });
-      setCustomFields(data.customFields ? Object.entries(data.customFields).map(([key, value]) => ({ key, value })) : []);
+      setCustomFields(data?.customFields ? Object.entries(data.customFields).map(([key, value]) => ({ key, value })) : []);
     } else if (type === 'addon') {
       setEditFormData({
-        name: data.name || '',
-        price: data.price || '',
-        description: data.description || '',
+        name: data?.name || '',
+        price: data?.price || '',
+        description: data?.description || '',
       });
-      setCustomFields(data.customFields ? Object.entries(data.customFields).map(([key, value]) => ({ key, value })) : []);
+      setCustomFields(data?.customFields ? Object.entries(data.customFields).map(([key, value]) => ({ key, value })) : []);
     }
   };
 
   const closeEditModal = () => {
-    setEditModal({ isOpen: false, type: '', data: null });
+    setEditModal({ isOpen: false, type: '', data: null, isCreating: false });
     setEditFormData({});
     setCustomFields([]);
   };
@@ -268,7 +268,7 @@ const Profile = () => {
   };
 
   const handleUpdate = async () => {
-    if (!editModal.data?._id) return;
+    if (!editModal.isCreating && !editModal.data?._id) return;
     
     setUpdating(true);
     try {
@@ -280,7 +280,7 @@ const Profile = () => {
       }, {});
 
       if (editModal.type === 'service') {
-        const updateData = {
+        const serviceData = {
           name: editFormData.name,
           price: Number(editFormData.price),
           description: editFormData.description,
@@ -292,26 +292,38 @@ const Profile = () => {
           customFields: customFieldsObject,
         };
         
-        await artistAPI.updateServiceOffering(editModal.data._id, updateData);
-        setServices(services.map(s => s._id === editModal.data._id ? { ...s, ...updateData } : s));
-        toast.success('Service updated successfully');
+        if (editModal.isCreating) {
+          const response = await artistAPI.createServiceOffering(serviceData);
+          setServices([...services, response.data]);
+          toast.success('Service created successfully');
+        } else {
+          await artistAPI.updateServiceOffering(editModal.data._id, serviceData);
+          setServices(services.map(s => s._id === editModal.data._id ? { ...s, ...serviceData } : s));
+          toast.success('Service updated successfully');
+        }
       } else if (editModal.type === 'addon') {
-        const updateData = {
+        const addonData = {
           name: editFormData.name,
           price: Number(editFormData.price),
           description: editFormData.description,
           customFields: customFieldsObject,
         };
         
-        await artistAPI.updateAddon(editModal.data._id, updateData);
-        setAddons(addons.map(a => a._id === editModal.data._id ? { ...a, ...updateData } : a));
-        toast.success('Add-on updated successfully');
+        if (editModal.isCreating) {
+          const response = await artistAPI.createAddon(addonData);
+          setAddons([...addons, response.data]);
+          toast.success('Add-on created successfully');
+        } else {
+          await artistAPI.updateAddon(editModal.data._id, addonData);
+          setAddons(addons.map(a => a._id === editModal.data._id ? { ...a, ...addonData } : a));
+          toast.success('Add-on updated successfully');
+        }
       }
       
       closeEditModal();
     } catch (error) {
-      console.error('Error updating:', error);
-      toast.error(error.response?.data?.message || 'Failed to update');
+      console.error('Error saving:', error);
+      toast.error(error.response?.data?.message || `Failed to ${editModal.isCreating ? 'create' : 'update'}`);
     } finally {
       setUpdating(false);
     }
@@ -584,7 +596,18 @@ const Profile = () => {
 
       {/* Services & Offerings Section */}
       <div className="mb-6">
-        <h3 className="text-2xl font-bold text-gray-900 mb-4">Services & Offerings</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-2xl font-bold text-gray-900">Services & Offerings</h3>
+          <button
+            onClick={() => openEditModal('service', null, true)}
+            className="px-5 py-2.5 bg-primary text-white rounded-full text-sm font-semibold hover:bg-primary/90 transition-colors flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add New Service
+          </button>
+        </div>
         
         {/* Service Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
@@ -641,6 +664,18 @@ const Profile = () => {
         </div>
 
         {/* Additional Services / Add-ons */}
+        <div className="flex items-center justify-between mb-3">
+          <h4 className="text-lg font-bold text-gray-900">Add-ons</h4>
+          <button
+            onClick={() => openEditModal('addon', null, true)}
+            className="px-4 py-2 bg-primary text-white rounded-full text-sm font-semibold hover:bg-primary/90 transition-colors flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add New Add-on
+          </button>
+        </div>
         <div className="space-y-3">
           {addons.length > 0 ? addons.map((addon, index) => (
             <div key={addon._id || index} className="bg-primary rounded-2xl overflow-hidden relative">
@@ -749,7 +784,7 @@ const Profile = () => {
             {/* Header - Fixed */}
             <div className=" bg-white px-6 py-4 flex items-center justify-between rounded-t-3xl">
               <h3 className="text-xl font-bold text-gray-900">
-                Edit {editModal.type === 'service' ? 'Service Offering' : 'Add-on'}
+                {editModal.isCreating ? 'Create New' : 'Edit'} {editModal.type === 'service' ? 'Service Offering' : 'Add-on'}
               </h3>
               <button
                 onClick={closeEditModal}
@@ -777,7 +812,7 @@ const Profile = () => {
                       value={editFormData.name}
                       onChange={handleEditInputChange}
                       disabled={updating}
-                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
+                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
                       placeholder={`Enter ${editModal.type === 'service' ? 'service' : 'add-on'} name`}
                     />
                   </div>
@@ -792,7 +827,7 @@ const Profile = () => {
                       value={editFormData.price}
                       onChange={handleEditInputChange}
                       disabled={updating}
-                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
+                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
                       placeholder="Enter price"
                       min="0"
                       step="0.01"
@@ -811,7 +846,7 @@ const Profile = () => {
                     onChange={handleEditInputChange}
                     disabled={updating}
                     rows="2"
-                    className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 resize-none text-sm"
+                    className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 resize-none text-sm"
                     placeholder="Enter description"
                   />
                 </div>
@@ -829,7 +864,7 @@ const Profile = () => {
                         value={editFormData.deliveryType}
                         onChange={handleEditInputChange}
                         disabled={updating}
-                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
+                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
                         placeholder="e.g., Digital, Physical, Dry + processed vocals"
                       />
                     </div>
@@ -844,7 +879,7 @@ const Profile = () => {
                         value={editFormData.deliveryTimeMin}
                         onChange={handleEditInputChange}
                         disabled={updating}
-                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
+                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
                         placeholder="Min"
                         min="0"
                       />
@@ -860,7 +895,7 @@ const Profile = () => {
                         value={editFormData.deliveryTimeMax}
                         onChange={handleEditInputChange}
                         disabled={updating}
-                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
+                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
                         placeholder="Max"
                         min="0"
                       />
@@ -878,7 +913,7 @@ const Profile = () => {
                       type="button"
                       onClick={addCustomField}
                       disabled={updating}
-                      className="px-4 py-2 bg-primary text-white rounded-full text-xs font-semibold hover:bg-primary-color/90 transition-colors disabled:opacity-50"
+                      className="px-4 py-2 bg-primary text-white rounded-full text-xs font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
                     >
                       + Add Field
                     </button>
@@ -894,7 +929,7 @@ const Profile = () => {
                               value={field.key}
                               onChange={(e) => updateCustomField(index, 'key', e.target.value)}
                               disabled={updating}
-                              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-white text-sm"
+                              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-white text-sm"
                               placeholder="Field name"
                             />
                           </div>
@@ -904,7 +939,7 @@ const Profile = () => {
                               value={field.value}
                               onChange={(e) => updateCustomField(index, 'value', e.target.value)}
                               disabled={updating}
-                              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-primary-color focus:outline-none transition-colors disabled:opacity-50 disabled:bg-white text-sm"
+                              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-white text-sm"
                               placeholder="Value"
                               maxLength="200"
                             />
@@ -913,7 +948,7 @@ const Profile = () => {
                             type="button"
                             onClick={() => removeCustomField(index)}
                             disabled={updating}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 flex-shrink-0"
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                             title="Remove field"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -945,7 +980,7 @@ const Profile = () => {
               <button
                 onClick={handleUpdate}
                 disabled={updating}
-                className="flex-1 px-6 py-3 bg-primary text-white rounded-full font-semibold hover:bg-primary-color/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 px-6 py-3 bg-primary text-white rounded-full font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {updating ? (
                   <>
@@ -953,10 +988,10 @@ const Profile = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Updating...
+                    {editModal.isCreating ? 'Creating...' : 'Updating...'}
                   </>
                 ) : (
-                  'Update'
+                  editModal.isCreating ? 'Create' : 'Update'
                 )}
               </button>
             </div>

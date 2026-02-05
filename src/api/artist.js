@@ -41,4 +41,16 @@ export const artistAPI = {
     const response = await api.patch(`/artists/addons/${addonId}`, data);
     return response.data;
   },
+
+  // Create service offering
+  createServiceOffering: async (data) => {
+    const response = await api.post(`/artists/service-offerings`, data);
+    return response.data;
+  },
+
+  // Create addon
+  createAddon: async (data) => {
+    const response = await api.post(`/artists/addons`, data);
+    return response.data;
+  },
 };
