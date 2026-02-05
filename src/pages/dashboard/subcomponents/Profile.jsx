@@ -206,7 +206,7 @@ const Profile = () => {
       formDataToSend.append('socialLinks', JSON.stringify(socialLinks));
       
       // Submit to API
-      await artistAPI.updateProfile(user._id, formDataToSend);
+      await artistAPI.updateProfile(formDataToSend);
       
       toast.success('Profile updated successfully!');
       setIsEditing(false);
@@ -277,7 +277,7 @@ const Profile = () => {
       <div className="bg-white rounded-3xl p-6 mb-6 shadow-sm">
         <div className="flex items-start gap-4 mb-6">
           <div className="relative">
-            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center overflow-hidden">
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full from-blue-400 to-purple-600 flex items-center justify-center overflow-hidden">
               {(previewUrl || formData.profilePictureUrl) ? (
                 <img 
                   src={previewUrl || formData.profilePictureUrl} 
@@ -504,7 +504,7 @@ const Profile = () => {
               <div className="space-y-2 mb-4">
                 {service.features.map((feature, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-sm">
-                    <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                     <span>{feature}</span>
