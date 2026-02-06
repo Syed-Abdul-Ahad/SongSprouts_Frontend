@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { artistAPI } from '../api/artist';
+import { useAuth } from '../../context/AuthContext';
+import { artistAPI } from '../../api/artist';
 import toast from 'react-hot-toast';
-import Button from '../components/Button';
-import Header from '../components/Header';
+import Button from '../../components/Button';
+import Header from '../../components/Header';
 
 const ArtistOnboarding = () => {
   const navigate = useNavigate();
@@ -191,44 +191,12 @@ const ArtistOnboarding = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      {/* <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold text-primary">Hello, {user?.name || 'jack'}!</h1>
-            <p className="text-gray-600 text-sm mt-1">Welcome to Song Sprouts</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search"
-                className="w-64 pl-4 pr-10 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              />
-              <svg className="w-5 h-5 text-gray-400 absolute right-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <button className="bg-primary text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
-              Filter
-            </button>
-            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer">
-              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div> */}
       <Header user={user} />
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-6">
         <div className='flex mt-5 mb-10 gap-4 items-center'>
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -258,7 +226,7 @@ const ArtistOnboarding = () => {
         {/* Store Information Section */}
         <div className="bg-gray-100 rounded-lg p-6 mb-4">
           <div className="flex gap-4">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center ">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -350,7 +318,7 @@ const ArtistOnboarding = () => {
         {/* Musical Genres Section */}
         <div className="bg-gray-100 rounded-lg p-6 mb-4">
           <div className="flex gap-4">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
               </svg>
@@ -388,7 +356,7 @@ const ArtistOnboarding = () => {
         {/* Artist Biography Section */}
         <div className="bg-gray-100 rounded-lg p-6 mb-4">
           <div className="flex gap-4">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
@@ -418,7 +386,7 @@ const ArtistOnboarding = () => {
         {/* Social Links Section */}
         <div className="bg-gray-100 rounded-lg p-6 mb-6">
           <div className="flex gap-4">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
               </svg>
@@ -495,7 +463,7 @@ const ArtistOnboarding = () => {
               </div>
 
               <div className="flex items-start gap-2 text-xs text-gray-600 mt-4">
-                <svg className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-4 h-4 text-primary mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
                 <p>Only usernames are stored. We'll never access your accounts.</p>

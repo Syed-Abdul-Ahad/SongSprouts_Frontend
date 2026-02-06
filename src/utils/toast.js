@@ -47,3 +47,15 @@ export const showPromiseToast = (promise, messages) => {
 export const getErrorMessage = (error, defaultMessage = 'An error occurred') => {
   return error.response?.data?.message || error.message || defaultMessage;
 };
+
+/**
+ * Consolidated toast object for easier imports
+ */
+export const showToast = {
+  success: showSuccessToast,
+  error: showErrorToast,
+  info: showInfoToast,
+  loading: showLoadingToast,
+  promise: showPromiseToast,
+  dismiss: dismissToast,
+};

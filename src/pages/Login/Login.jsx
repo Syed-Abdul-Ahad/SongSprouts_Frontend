@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { authAPI } from '../api/auth';
+import { useAuth } from '../../context/AuthContext';
+import { authAPI } from '../../api/auth';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import Button from '../components/Button';
-import Input from '../components/Input';
+import Button from '../../components/Button';
+import Input from '../../components/Input';
 
 const Login = () => {
   const [email, setEmail] = useState('');

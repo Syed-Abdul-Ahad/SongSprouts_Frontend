@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import Button from '../components/Button';
-import Input from '../components/Input';
-import { authAPI } from '../api/auth';
+import Button from '../../components/Button';
+import Input from '../../components/Input';
+import { authAPI } from '../../api/auth';
 
 const ResetPassword = () => {
   const [email, setEmail] = useState('');
