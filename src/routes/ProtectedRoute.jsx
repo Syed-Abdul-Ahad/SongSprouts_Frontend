@@ -2,7 +2,8 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading , user} = useAuth();
+  const isArtist = user?.role.includes('artist');
 
   if (loading) {
     return (
