@@ -1,7 +1,9 @@
-import { useEffect, useState, useRef } from 'react';
-import { useAuth } from '../../../context/AuthContext';
-import { artistAPI } from '../../../api/artist';
+﻿import { useEffect, useState, useRef } from 'react';
+import { useAuth } from '../../../../context/AuthContext';
+import { artistAPI } from '../../../../api/artist';
 import toast from 'react-hot-toast';
+import DeleteModal from './subcomponents/DeleteModal';
+import EditModal from './subcomponents/EditModal';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -742,262 +744,30 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {deleteModal.isOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl">
-            <div className="flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mx-auto mb-4">
-              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 text-center mb-2">
-              Delete {deleteModal.type === 'service' ? 'Service' : 'Add-on'}
-            </h3>
-            <p className="text-gray-600 text-center mb-6">
-              Are you sure you want to delete <span className="font-semibold text-gray-900">{deleteModal.name}</span>? This action cannot be undone.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={closeDeleteModal}
-                disabled={deleting}
-                className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-full font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="flex-1 px-6 py-3 bg-red-600 text-white rounded-full font-semibold hover:bg-red-700 transition-colors disabled:opacity-50"
-              >
-                {deleting ? 'Deleting...' : 'Delete'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modals */}
+      <DeleteModal
+        isOpen={deleteModal.isOpen}
+        type={deleteModal.type}
+        name={deleteModal.name}
+        onClose={closeDeleteModal}
+        onDelete={handleDelete}
+        deleting={deleting}
+      />
 
-      {/* Edit Modal */}
-      {editModal.isOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-xl">
-            {/* Header - Fixed */}
-            <div className=" bg-white px-6 py-4 flex items-center justify-between rounded-t-3xl">
-              <h3 className="text-xl font-bold text-gray-900">
-                {editModal.isCreating ? 'Create New' : 'Edit'} {editModal.type === 'service' ? 'Service Offering' : 'Add-on'}
-              </h3>
-              <button
-                onClick={closeEditModal}
-                disabled={updating}
-                className="text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Scrollable Form Content */}
-            <div className="flex-1 overflow-y-auto px-6 py-5">
-              <div className="space-y-5">
-                {/* Name and Price Row */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                      {editModal.type === 'service' ? 'Service' : 'Add-on'} Name
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={editFormData.name}
-                      onChange={handleEditInputChange}
-                      disabled={updating}
-                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
-                      placeholder={`Enter ${editModal.type === 'service' ? 'service' : 'add-on'} name`}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                      Price ($)
-                    </label>
-                    <input
-                      type="number"
-                      name="price"
-                      value={editFormData.price}
-                      onChange={handleEditInputChange}
-                      disabled={updating}
-                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
-                      placeholder="Enter price"
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
-                </div>
-
-                {/* Description - Full Width */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                    Description
-                  </label>
-                  <textarea
-                    name="description"
-                    value={editFormData.description}
-                    onChange={handleEditInputChange}
-                    disabled={updating}
-                    rows="2"
-                    className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 resize-none text-sm"
-                    placeholder="Enter description"
-                  />
-                </div>
-
-                {/* Service-specific fields */}
-                {editModal.type === 'service' && (
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Delivery Type
-                      </label>
-                      <input
-                        type="text"
-                        name="deliveryType"
-                        value={editFormData.deliveryType}
-                        onChange={handleEditInputChange}
-                        disabled={updating}
-                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
-                        placeholder="e.g., Digital, Physical, Dry + processed vocals"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Min Time (days)
-                      </label>
-                      <input
-                        type="number"
-                        name="deliveryTimeMin"
-                        value={editFormData.deliveryTimeMin}
-                        onChange={handleEditInputChange}
-                        disabled={updating}
-                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
-                        placeholder="Min"
-                        min="0"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Max Time (days)
-                      </label>
-                      <input
-                        type="number"
-                        name="deliveryTimeMax"
-                        value={editFormData.deliveryTimeMax}
-                        onChange={handleEditInputChange}
-                        disabled={updating}
-                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50 text-sm"
-                        placeholder="Max"
-                        min="0"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Custom Fields Section - For both services and add-ons */}
-                <div className="pt-5 mt-2">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-base font-bold text-gray-900">
-                      Custom Fields
-                    </h4>
-                    <button
-                      type="button"
-                      onClick={addCustomField}
-                      disabled={updating}
-                      className="px-4 py-2 bg-primary text-white rounded-full text-xs font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
-                    >
-                      + Add Field
-                    </button>
-                  </div>
-                  
-                  {customFields.length > 0 ? (
-                    <div className="space-y-2.5">
-                      {customFields.map((field, index) => (
-                        <div key={index} className="flex gap-2.5 items-center bg-gray-50 p-3 rounded-lg">
-                          <div className="flex-1">
-                            <input
-                              type="text"
-                              value={field.key}
-                              onChange={(e) => updateCustomField(index, 'key', e.target.value)}
-                              disabled={updating}
-                              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-white text-sm"
-                              placeholder="Field name"
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <input
-                              type="text"
-                              value={field.value}
-                              onChange={(e) => updateCustomField(index, 'value', e.target.value)}
-                              disabled={updating}
-                              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors disabled:opacity-50 disabled:bg-white text-sm"
-                              placeholder="Value"
-                              maxLength="200"
-                            />
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => removeCustomField(index)}
-                            disabled={updating}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                            title="Remove field"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-                      <p className="text-gray-500 text-xs font-medium">No custom fields</p>
-                      <p className="text-gray-400 text-xs mt-0.5">Click "Add Field" button above</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Footer with Action Buttons - Fixed */}
-            <div className=" bg-gray-50 px-6 py-4 flex gap-3 rounded-b-3xl">
-              <button
-                onClick={closeEditModal}
-                disabled={updating}
-                className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-full font-semibold hover:bg-white transition-colors disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleUpdate}
-                disabled={updating}
-                className="flex-1 px-6 py-3 bg-primary text-white rounded-full font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {updating ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    {editModal.isCreating ? 'Creating...' : 'Updating...'}
-                  </>
-                ) : (
-                  editModal.isCreating ? 'Create' : 'Update'
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <EditModal
+        isOpen={editModal.isOpen}
+        type={editModal.type}
+        isCreating={editModal.isCreating}
+        formData={editFormData}
+        customFields={customFields}
+        updating={updating}
+        onClose={closeEditModal}
+        onInputChange={handleEditInputChange}
+        onAddCustomField={addCustomField}
+        onRemoveCustomField={removeCustomField}
+        onUpdateCustomField={updateCustomField}
+        onSubmit={handleUpdate}
+      />
     </div>
   );
 };
