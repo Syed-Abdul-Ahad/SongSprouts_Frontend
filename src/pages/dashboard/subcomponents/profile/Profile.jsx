@@ -54,6 +54,7 @@ const Profile = () => {
       try {
         const profile = await artistAPI.getProfile(user._id);
         const profileData = profile?.data?.artist;
+        console.log(profile)
         
         // Pre-fill form with existing data
         setFormData({

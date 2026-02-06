@@ -1,6 +1,12 @@
 import api from './axios';
 
 export const artistAPI = {
+  // Get all artists with pagination
+  getAllArtists: async (page = 1, limit = 10) => {
+    const response = await api.get(`/artists?page=${page}&limit=${limit}`);
+    return response.data;
+  },
+
   // Get artist profile
   getProfile: async (userId) => {
     const response = await api.get(`/artists/profile/${userId}`);

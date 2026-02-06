@@ -76,19 +76,20 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
         </div>
 
         {/* Menu Items */}
-        <div className="flex flex-col gap-6 flex-1 w-full">
+        <div className="flex flex-col gap-3 flex-1 w-full">
+          
           {menuItems.map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center gap-2 py-1 px-1 transition-all ${
-                activeTab === item.id 
-                  ? 'bg-white text-primary rounded-r-lg' 
+              className={`flex flex-col items-center gap-1 py-2 px-1 transition-all ${
+                activeTab === item.id
+                  ? 'bg-white text-primary rounded-l-lg ml-3 pl-4 items-start '
                   : 'text-white hover:bg-white/10 rounded-xl'
               }`}
             >
-              {item.icon(activeTab === item.id)}
-              <span className="text-[10px] font-light">{item.label}</span>
+              <div className='flex flex-col items-center gap-y-1'>{item.icon(activeTab === item.id)}
+              <span className="text-[9px] font-light">{item.label}</span></div>
             </button>
           ))}
         </div>

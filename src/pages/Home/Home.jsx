@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
 import { ArtistCard } from './subcomponents';
+import { artistAPI } from '../../api/artist';
+import { showToast } from '../../utils/toast';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -12,81 +14,69 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
-  // Sample artist data - replace with actual API call
-  // In real implementation, this would be fetched from API
-  const generateMockArtists = (count) => {
-    const mockArtists = [];
-    const names = ["Marcus Rivers", "Sarah Chen", "DJ Thunder", "Luna Star", "Alex Morgan", "Jamie Fox", "Taylor Swift", "Chris Brown"];
-    const genresOptions = [
-      ["R&B", "Soul", "Jazz"],
-      ["Pop"],
-      ["Hip-Hop", "Trap", "EDM", "House"],
-      ["Country", "Folk"],
-      ["Rock", "Alternative"],
-      ["Electronic", "Dance"],
-      ["Indie", "Folk", "Acoustic"]
-    ];
-
-    for (let i = 1; i <= count; i++) {
-      mockArtists.push({
-        id: i,
-        name: `${names[i % names.length]} ${i}`,
-        genres: genresOptions[i % genresOptions.length],
-        startingPrice: 300 + (i * 50) % 500,
-        imageUrl: "/My Image.png"
-      });
-    }
-    return mockArtists;
+  // Helper function to get minimum price from service offerings
+  const getMinimumPrice = (serviceOfferings) => {
+    if (!serviceOfferings || serviceOfferings.length === 0) return 0;
+    return Math.min(...serviceOfferings.map(service => service.price));
   };
 
-  // Simulate API call to fetch initial artists
+  // Helper function to transform API artist data to component format
+  const transformArtistData = (apiArtist) => {
+    return {
+      id: apiArtist._id,
+      userId: apiArtist.user?._id, // Store userId for profile fetching
+      name: apiArtist.storeName || apiArtist.user?.fullname || 'Unknown Artist',
+      genres: apiArtist.musicalGenres || [],
+      startingPrice: getMinimumPrice(apiArtist.serviceOfferings),
+      imageUrl: apiArtist.profilePictureUrl || '/Avatar.webp',
+      bio: apiArtist.bio,
+      location: apiArtist.location,
+      storeURL: apiArtist.storeURL,
+    };
+  };
+
+  // Fetch initial artists from API
   const fetchInitialArtists = async () => {
     setLoading(true);
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/artists?page=1&limit=10');
-      // const data = await response.json();
+      const response = await artistAPI.getAllArtists(1, ITEMS_PER_PAGE);
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockData = generateMockArtists(35); // Total 35 artists for demo
-      const initialArtists = mockData.slice(0, ITEMS_PER_PAGE);
-      
-      setDisplayedArtists(initialArtists);
-      setHasMore(mockData.length > ITEMS_PER_PAGE);
+      if (response.status === 'success' && response.data?.artists) {
+        const transformedArtists = response.data.artists.map(transformArtistData);
+        setDisplayedArtists(transformedArtists);
+        setTotalPages(response.pagination.totalPages);
+        setHasMore(response.pagination.hasNextPage);
+        setPage(1);
+      }
     } catch (error) {
       console.error('Error fetching artists:', error);
+      showToast.error('Failed to load artists. Please try again later.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Simulate API call to load more artists
+  // Load more artists from API
   const loadMoreArtists = async () => {
     if (loadingMore || !hasMore) return;
     
     setLoadingMore(true);
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch(`/api/artists?page=${page + 1}&limit=10`);
-      // const data = await response.json();
+      const nextPage = page + 1;
+      const response = await artistAPI.getAllArtists(nextPage, ITEMS_PER_PAGE);
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const mockData = generateMockArtists(35); // Total 35 artists for demo
-      const startIndex = page * ITEMS_PER_PAGE;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-      const newArtists = mockData.slice(startIndex, endIndex);
-      
-      setDisplayedArtists(prev => [...prev, ...newArtists]);
-      setPage(prev => prev + 1);
-      setHasMore(endIndex < mockData.length);
+      if (response.status === 'success' && response.data?.artists) {
+        const transformedArtists = response.data.artists.map(transformArtistData);
+        setDisplayedArtists(prev => [...prev, ...transformedArtists]);
+        setPage(nextPage);
+        setHasMore(response.pagination.hasNextPage);
+      }
     } catch (error) {
       console.error('Error loading more artists:', error);
+      showToast.error('Failed to load more artists. Please try again.');
     } finally {
       setLoadingMore(false);
     }
@@ -99,8 +89,8 @@ const Home = () => {
 
   const handleArtistClick = (artist) => {
     console.log('Artist clicked:', artist);
-    // Navigate to artist profile page
-    navigate(`/artist/${artist.id}`);
+    // Navigate to artist profile page using userId
+    navigate(`/artist/${artist.userId}`);
   };
 
   return (

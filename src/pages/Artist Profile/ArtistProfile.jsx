@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import { ProfileHeader, ServicesOfferings } from './subcomponents';
+import { artistAPI } from '../../api/artist';
+import { showToast } from '../../utils/toast';
 
 const ArtistProfile = () => {
-  const { artistId } = useParams();
+  const { artistId } = useParams(); // This is actually userId now
   const [artist, setArtist] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -13,69 +15,51 @@ const ArtistProfile = () => {
     fetchArtistData();
   }, [artistId]);
 
+  // Transform API service offerings to component format
+  const transformServices = (serviceOfferings) => {
+    if (!serviceOfferings || serviceOfferings.length === 0) return [];
+    
+    return serviceOfferings.map((service, index) => ({
+      id: service._id,
+      title: service.name,
+      price: service.price,
+      description: service.description,
+      deliveryTime: `${service.deliveryTime.minimum}-${service.deliveryTime.maximum} days delivery`,
+      features: [service.deliveryType],
+      customFields: service.customFields || {},
+      color: "bg-primary"
+    }));
+  };
+
   const fetchArtistData = async () => {
     setLoading(true);
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch(`/api/artists/${artistId}`);
-      // const data = await response.json();
+      // Use getProfile with userId (artistId param is actually userId)
+      const response = await artistAPI.getProfile(artistId);
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Mock artist data
-      const mockArtist = {
-        id: artistId,
-        name: "Ava Sterling",
-        imageUrl: "/My Image.png",
-        genres: ["Pop", "R&B"],
-        bio: "Award-winning vocalist specializing in pop and R&B with a soulful touch. I bring emotion and professionalism to every project, from catchy hooks to powerful ballads. My vocals have been featured on tracks with over 50M+ streams.",
-        location: "Los Angeles, CA",
-        projectsCompleted: "240+",
-        memberSince: "2020",
-        services: [
-          {
-            id: 1,
-            title: "Custom Song",
-            price: 350,
-            description: "A fully produced original song written and recorded specifically for your project. Includes lyric writing, melody composition, and professional recording.",
-            deliveryTime: "3-5 days delivery",
-            features: ["WAV + MP3 stems"],
-            color: "bg-primary"
-          },
-          {
-            id: 2,
-            title: "Feature Verse",
-            price: 180,
-            description: "Add a professionally recorded vocal feature to your existing track. Perfect for hooks, choruses, or verses that need that special touch.",
-            deliveryTime: "3-5 days delivery",
-            features: ["DRY + processed vocals"],
-            color: "bg-primary"
-          },
-          {
-            id: 3,
-            title: "Full Production",
-            price: 650,
-            description: "Complete songwriting, vocal performance, and professional production package. From concept to finished master, ready for release.",
-            deliveryTime: "3-5 days delivery",
-            features: ["DRY + processed vocals"],
-            color: "bg-primary"
-          },
-          {
-            id: 4,
-            title: "Demo Vocal",
-            price: 95,
-            description: "Professional demo recording to test out melodies or lyrics before full production. Great for songwriters needing a quality reference track.",
-            deliveryTime: "3-5 days delivery",
-            features: ["DRY + processed vocals"],
-            color: "bg-primary"
-          }
-        ]
-      };
+      if (response.status === 'success' && response.data?.artist) {
+        const apiArtist = response.data.artist;
+        
+        // Transform API data to component format
+        const transformedArtist = {
+          id: apiArtist._id,
+          name: apiArtist.storeName || apiArtist.user?.fullname || 'Unknown Artist',
+          imageUrl: apiArtist.profilePictureUrl || '/My Image.png',
+          genres: apiArtist.musicalGenres || [],
+          bio: apiArtist.bio || 'No bio available',
+          location: apiArtist.location || 'Location not specified',
+          projectsCompleted: apiArtist.projectComplete || 0,
+          memberSince: new Date(apiArtist.createdAt).getFullYear().toString(),
+          services: transformServices(apiArtist.serviceOfferings),
+          socialLinks: apiArtist.socialLinks || {},
+          addOns: apiArtist.addOns || []
+        };
 
-      setArtist(mockArtist);
+        setArtist(transformedArtist);
+      }
     } catch (error) {
       console.error('Error fetching artist:', error);
+      showToast.error('Failed to load artist profile. Please try again.');
     } finally {
       setLoading(false);
     }
