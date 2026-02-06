@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Sidebar from './subcomponents/Sidebar';
-import Home from './subcomponents/Home';
+import Home from './subcomponents/home/Home';
 import Profile from './subcomponents/profile/Profile';
 import Orders from './subcomponents/Orders';
 import StoreFront from './subcomponents/StoreFront';
