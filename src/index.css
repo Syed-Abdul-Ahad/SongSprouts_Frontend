@@ -177,3 +177,19 @@ body {
   --color-card: #F9F9F9;
   --color-outline: #D1E2DE;
 }
+
+/* Slide down animation for mobile search */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.2s ease-out;
+}
