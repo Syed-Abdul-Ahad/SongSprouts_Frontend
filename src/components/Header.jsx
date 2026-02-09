@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-const Header = () => {
+const Header = ({ 
+  showSearch = false, 
+  searchQuery = '',
+  onSearchChange = () => {},
+  onSearchSubmit = () => {},
+  showFilter = false,
+  onFilterClick = () => {},
+  activeFilterCount = 0
+}) => {
   const { user } = useAuth();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  console.log(user)
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Handle search logic here
-    console.log('Searching for:', searchQuery);
+    onSearchSubmit(e);
+  };
+
+  const handleClearSearch = () => {
+    onSearchChange({ target: { value: '' } });
   };
 
   return (
@@ -25,78 +35,69 @@ const Header = () => {
 
         {/* Search and Actions Section */}
         <div className="flex items-center gap-4">
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search"
-              className="w-80 px-4 py-2 pr-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-            />
-            <button
-              type="submit"
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              aria-label="Search"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </button>
-          </form>
+          {/* Search Bar - Only show if showSearch is true */}
+          {showSearch && (
+            <form onSubmit={handleSearch} className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={onSearchChange}
+                placeholder="Search by artist name or bio..."
+                className="w-80 px-4 py-2 pr-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              />
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label="Clear search"
+                >
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label="Search"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </button>
+              )}
+            </form>
+          )}
 
-          {/* Filter Button */}
-          <div className="relative">
-            <button
-              onClick={() => setShowFilterMenu(!showFilterMenu)}
-              className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-full hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+          {/* Filter Button - Only show if showFilter is true */}
+          {showFilter && (
+            <div className="relative">
+              <button
+                onClick={onFilterClick}
+                className="relative flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-full hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                />
-              </svg>
-              <span>Filter</span>
-            </button>
-
-            {/* Filter Menu Dropdown */}
-            {showFilterMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10">
-                <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors">
-                  All
-                </button>
-                <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors">
-                  Genre
-                </button>
-                <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors">
-                  Artist
-                </button>
-                <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors">
-                  Recent
-                </button>
-              </div>
-            )}
-          </div>
+                <img src="/Filter.png" alt="Filter" />
+                <span>Filters</span>
+                {activeFilterCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 rounded-full">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+            </div>
+          )}
 
           {/* Profile Avatar */}
           <button
@@ -111,7 +112,7 @@ const Header = () => {
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-primary text-white font-semibold">
-                {user?.name?.charAt(0).toUpperCase() || 'U'}
+                {user?.fullname?.charAt(0).toUpperCase() || 'U'}
               </div>
             )}
           </button>

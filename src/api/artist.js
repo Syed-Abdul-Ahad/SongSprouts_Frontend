@@ -1,9 +1,24 @@
 import api from './axios';
 
 export const artistAPI = {
-  // Get all artists with pagination
-  getAllArtists: async (page = 1, limit = 10) => {
-    const response = await api.get(`/artists?page=${page}&limit=${limit}`);
+  // Get all artists with pagination and filters
+  getAllArtists: async (page = 1, limit = 10, filters = {}) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+
+    // Add optional filters
+    if (filters.search) params.append('search', filters.search);
+    // Handle genres array - convert to comma-separated string
+    if (filters.genres && filters.genres.length > 0) {
+      params.append('genre', filters.genres.join(','));
+    }
+    if (filters.location) params.append('location', filters.location);
+    if (filters.sortBy) params.append('sortBy', filters.sortBy);
+    if (filters.sortOrder) params.append('sortOrder', filters.sortOrder);
+
+    const response = await api.get(`/artists?${params.toString()}`);
     return response.data;
   },
 

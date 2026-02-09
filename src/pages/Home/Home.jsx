@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
-import { ArtistCard } from './subcomponents';
+import { ArtistCard, FilterModal } from './subcomponents';
 import { artistAPI } from '../../api/artist';
 import { showToast } from '../../utils/toast';
 
@@ -16,6 +16,15 @@ const Home = () => {
   const [hasMore, setHasMore] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
   const ITEMS_PER_PAGE = 10;
+
+  // Search and Filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({
+    genres: [],
+    location: '',
+  });
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [activeFilterCount, setActiveFilterCount] = useState(0);
 
   // Helper function to get minimum price from service offerings
   const getMinimumPrice = (serviceOfferings) => {
@@ -38,54 +47,86 @@ const Home = () => {
     };
   };
 
-  // Fetch initial artists from API
-  const fetchInitialArtists = async () => {
-    setLoading(true);
+  // Update active filter count
+  useEffect(() => {
+    let count = 0;
+    if (filters.genres && filters.genres.length > 0) count++;
+    if (filters.location) count++;
+    setActiveFilterCount(count);
+  }, [filters]);
+
+  // Fetch artists with current filters and search
+  const fetchArtists = async (pageNum = 1, appendResults = false) => {
+    if (pageNum === 1) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+
     try {
-      const response = await artistAPI.getAllArtists(1, ITEMS_PER_PAGE);
+      const queryFilters = {
+        ...filters,
+        search: searchQuery,
+      };
+
+      const response = await artistAPI.getAllArtists(pageNum, ITEMS_PER_PAGE, queryFilters);
       
       if (response.status === 'success' && response.data?.artists) {
         const transformedArtists = response.data.artists.map(transformArtistData);
-        setDisplayedArtists(transformedArtists);
+        
+        if (appendResults) {
+          setDisplayedArtists(prev => [...prev, ...transformedArtists]);
+        } else {
+          setDisplayedArtists(transformedArtists);
+        }
+        
         setTotalPages(response.pagination.totalPages);
         setHasMore(response.pagination.hasNextPage);
-        setPage(1);
+        setPage(pageNum);
       }
     } catch (error) {
       console.error('Error fetching artists:', error);
       showToast.error('Failed to load artists. Please try again later.');
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
+  };
+
+  // Fetch initial artists from API
+  const fetchInitialArtists = async () => {
+    fetchArtists(1, false);
   };
 
   // Load more artists from API
   const loadMoreArtists = async () => {
     if (loadingMore || !hasMore) return;
-    
-    setLoadingMore(true);
-    try {
-      const nextPage = page + 1;
-      const response = await artistAPI.getAllArtists(nextPage, ITEMS_PER_PAGE);
-      
-      if (response.status === 'success' && response.data?.artists) {
-        const transformedArtists = response.data.artists.map(transformArtistData);
-        setDisplayedArtists(prev => [...prev, ...transformedArtists]);
-        setPage(nextPage);
-        setHasMore(response.pagination.hasNextPage);
-      }
-    } catch (error) {
-      console.error('Error loading more artists:', error);
-      showToast.error('Failed to load more artists. Please try again.');
-    } finally {
-      setLoadingMore(false);
-    }
+    fetchArtists(page + 1, true);
+  };
+
+  // Handle search
+  const handleSearch = (e) => {
+    if (e) e.preventDefault();
+    fetchArtists(1, false);
+  };
+
+  // Handle filter apply
+  const handleApplyFilters = (newFilters) => {
+    setFilters(newFilters);
+    // Fetch will be triggered by useEffect
   };
 
   // Fetch initial artists on mount
   useEffect(() => {
     fetchInitialArtists();
   }, []);
+
+  // Re-fetch when filters change
+  useEffect(() => {
+    if (page === 1) {
+      fetchArtists(1, false);
+    }
+  }, [filters]);
 
   const handleArtistClick = (artist) => {
     console.log('Artist clicked:', artist);
@@ -95,7 +136,15 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header 
+        showSearch={true}
+        searchQuery={searchQuery}
+        onSearchChange={(e) => setSearchQuery(e.target.value)}
+        onSearchSubmit={handleSearch}
+        showFilter={true}
+        onFilterClick={() => setIsFilterModalOpen(true)}
+        activeFilterCount={activeFilterCount}
+      />
       
       <main className="mx-auto max-w-7xl px-4 py-6 overflow-x-hidden">
         {/* Hero Section */}
@@ -105,6 +154,60 @@ const Home = () => {
             Set up your storefront to start accepting custom song requests from music lovers.
           </p>
         </div>
+
+        {/* Active Filters Display */}
+        {(filters.genres?.length > 0 || filters.location || searchQuery) && (
+          <div className="mb-6 flex flex-wrap gap-2">
+            {searchQuery && (
+              <span className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
+                Search: {searchQuery}
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    fetchArtists(1, false);
+                  }}
+                  className="hover:bg-primary/20 rounded-full p-0.5"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+            )}
+            {filters.genres?.map((genre) => (
+              <span 
+                key={genre}
+                className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium"
+              >
+                Genre: {genre}
+                <button
+                  onClick={() => handleApplyFilters({ 
+                    ...filters, 
+                    genres: filters.genres.filter(g => g !== genre) 
+                  })}
+                  className="hover:bg-primary/20 rounded-full p-0.5"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+            ))}
+            {filters.location && (
+              <span className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
+                Location: {filters.location}
+                <button
+                  onClick={() => handleApplyFilters({ ...filters, location: '' })}
+                  className="hover:bg-primary/20 rounded-full p-0.5"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Artists Grid */}
         <section>
@@ -180,6 +283,14 @@ const Home = () => {
           )}
         </section>
       </main>
+
+      {/* Filter Modal */}
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        onApply={handleApplyFilters}
+        currentFilters={filters}
+      />
     </div>
   );
 };
