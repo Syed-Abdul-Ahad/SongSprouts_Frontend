@@ -1,4 +1,6 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useOrder } from '../../../context/OrderContext';
 
 const ArtistCard = ({ 
   artist,
@@ -8,6 +10,9 @@ const ArtistCard = ({
   startingPrice,
   onCardClick
 }) => {
+  const navigate = useNavigate();
+  const { selectArtist } = useOrder();
+
   // Ensure genres is always an array
   const genreList = Array.isArray(genres) ? genres : [genres];
   
@@ -15,10 +20,21 @@ const ArtistCard = ({
   const displayedGenres = genreList.slice(0, 2);
   const hasMoreGenres = genreList.length > 2;
 
+  const handleClick = () => {
+    // Update order context with selected artist
+    selectArtist(artist);
+    
+    // Navigate to artist profile
+    navigate(`/artist/${artist.userId || artist.id}`);
+    
+    // Call optional callback
+    onCardClick?.(artist);
+  };
+
   return (
     <div 
       className="group relative w-full max-w-70 cursor-pointer transition-transform duration-300 hover:scale-105 mx-auto"
-      onClick={() => onCardClick?.(artist)}
+      onClick={handleClick}
     >
       {/* Card Container */}
       <div className="relative overflow-hidden rounded-3xl bg-card shadow-xl text-black">

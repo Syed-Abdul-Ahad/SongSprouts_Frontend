@@ -1,6 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useOrder } from '../../../context/OrderContext';
 
 const ServicesOfferings = ({ services }) => {
+  const navigate = useNavigate();
+  const { selectService } = useOrder();
+
   // Default services if none provided
   const defaultServices = [
     {
@@ -45,7 +50,12 @@ const ServicesOfferings = ({ services }) => {
 
   const handleSelectService = (service) => {
     console.log('Selected service:', service);
-    // TODO: Navigate to booking/checkout page
+    
+    // Update order context with selected service
+    selectService(service);
+    
+    // Navigate to creative brief page
+    navigate('/creative-brief');
   };
 
   return (
@@ -117,7 +127,7 @@ const ServicesOfferings = ({ services }) => {
             {/* Select Service Button */}
             <button
               onClick={() => handleSelectService(service)}
-              className="w-full rounded-full bg-white py-3 font-semibold text-primary shadow-md transition-all duration-300 hover:bg-gray-50 hover:shadow-lg"
+              className="w-full rounded-full bg-white py-3 font-semibold text-primary shadow-md transition-all duration-300 hover:bg-gray-50 hover:shadow-lg cursor-pointer"
             >
               SELECT SERVICE
             </button>

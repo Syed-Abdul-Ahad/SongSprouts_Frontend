@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../../components/Header';
+// import ProgressBar from '../../components/ProgressBar';
 import { ProfileHeader, ServicesOfferings } from './subcomponents';
 import { artistAPI } from '../../api/artist';
 import { showToast } from '../../utils/toast';
+import { useOrder } from '../../context/OrderContext';
 
 const ArtistProfile = () => {
   const { artistId } = useParams(); // This is actually userId now
+  const { orderData } = useOrder();
   const [artist, setArtist] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -108,6 +111,13 @@ const ArtistProfile = () => {
         </button>
           <span className='font-bold text-xl'>Back</span >  
         </div>
+
+        {/* Progress Bar - Show if artist is selected in order flow
+        {orderData.artist && (
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <ProgressBar />
+          </div>
+        )} */}
 
         {/* Profile Header Section */}
         <ProfileHeader artist={artist} />

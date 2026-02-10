@@ -74,4 +74,9 @@ export const artistAPI = {
     const response = await api.post(`/artists/addons`, data);
     return response.data;
   },
+
+  getAddonByArtist: async()=>{
+    const response = await api.get(`/artists/addons`);
+    return response.data;
+  }
 };

@@ -9,6 +9,8 @@ import ArtistOnboarding from '../pages/ArtistOnboarding/ArtistOnboarding';
 import ProtectedRoute from './ProtectedRoute';
 import Home from '../pages/Home/Home';
 import ArtistProfile from '../pages/Artist Profile/ArtistProfile';
+import CreativeBreif from '../pages/Creative Breif/CreativeBreif';
+import AddOns from '../pages/AddOns/AddOns';
 import { useAuth } from '../context/AuthContext';
 
 const AppRoutes = () => {
@@ -43,6 +45,11 @@ const AppRoutes = () => {
       {/* Public Home and Artist Routes */}
       <Route path="/home" element={<Home />} />
       <Route path="/artist/:artistId" element={<ArtistProfile />} />
+      
+      {/* Order Flow Routes */}
+      <Route path="/creative-brief" element={<CreativeBreif />} />
+      <Route path="/add-ons" element={<AddOns />} />
+      {/* TODO: Add route for /review-payment */}
       
       {/* Default Route */}
       <Route path="/" element={<Navigate to="/home" replace />} />
