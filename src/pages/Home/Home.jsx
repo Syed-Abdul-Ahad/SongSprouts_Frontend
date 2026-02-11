@@ -4,9 +4,11 @@ import Header from '../../components/Header';
 import { ArtistCard, FilterModal } from './subcomponents';
 import { artistAPI } from '../../api/artist';
 import { showToast } from '../../utils/toast';
+import { useOrder } from '../../context/OrderContext';
 
 const Home = () => {
   const navigate = useNavigate();
+  const { selectArtist } = useOrder();
   
   // Pagination state
   const [displayedArtists, setDisplayedArtists] = useState([]);
@@ -119,6 +121,7 @@ const Home = () => {
   // Fetch initial artists on mount
   useEffect(() => {
     fetchInitialArtists();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Re-fetch when filters change
@@ -126,10 +129,13 @@ const Home = () => {
     if (page === 1) {
       fetchArtists(1, false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   const handleArtistClick = (artist) => {
     console.log('Artist clicked:', artist);
+    // Update order context with selected artist
+    selectArtist(artist);
     // Navigate to artist profile page using userId
     navigate(`/artist/${artist.userId}`);
   };

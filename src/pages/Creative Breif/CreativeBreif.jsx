@@ -42,7 +42,8 @@ const CreativeBreif = () => {
       showToast.error('Please select an artist and service first');
       navigate('/home');
     }
-  }, [orderData, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Handle input changes
   const handleChange = (e) => {

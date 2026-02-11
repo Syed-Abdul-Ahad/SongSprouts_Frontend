@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const OrderContext = createContext(null);
@@ -31,10 +31,22 @@ export const STEP_NAMES = {
 export const OrderProvider = ({ children }) => {
   const navigate = useNavigate();
   
-  // Load order data from localStorage on mount
-  const [orderData, setOrderData] = useState(() => {
+  // Get initial order data with user validation
+  const getInitialOrderData = () => {
+    const currentUser = localStorage.getItem('currentUserId');
     const savedOrder = localStorage.getItem('songOrderData');
-    return savedOrder ? JSON.parse(savedOrder) : {
+    
+    if (savedOrder) {
+      const parsedOrder = JSON.parse(savedOrder);
+      // Check if the saved order belongs to the current user
+      if (parsedOrder.userId && parsedOrder.userId === currentUser) {
+        return parsedOrder;
+      }
+    }
+    
+    // Return fresh order data
+    return {
+      userId: currentUser,
       currentStep: ORDER_STEPS.SELECT_ARTIST,
       completedSteps: [],
       artist: null,
@@ -43,81 +55,181 @@ export const OrderProvider = ({ children }) => {
         recipient: '',
         occasion: '',
         story: '',
+        mood: 'Balanced',
       },
       addOns: [],
       totalPrice: 0,
     };
-  });
+  };
+  
+  // Load order data from localStorage on mount
+  const [orderData, setOrderData] = useState(getInitialOrderData);
+
+  // Reset order (clear all data)
+  const resetOrder = useCallback(() => {
+    const currentUser = localStorage.getItem('currentUserId');
+    const freshData = {
+      userId: currentUser,
+      currentStep: ORDER_STEPS.SELECT_ARTIST,
+      completedSteps: [],
+      artist: null,
+      service: null,
+      creativeBrief: {
+        recipient: '',
+        occasion: '',
+        story: '',
+        mood: 'Balanced',
+      },
+      addOns: [],
+      totalPrice: 0,
+    };
+    setOrderData(freshData);
+    localStorage.setItem('songOrderData', JSON.stringify(freshData));
+  }, []);
 
   // Persist order data to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('songOrderData', JSON.stringify(orderData));
+    const currentUser = localStorage.getItem('currentUserId');
+    const dataToSave = { ...orderData, userId: currentUser };
+    localStorage.setItem('songOrderData', JSON.stringify(dataToSave));
   }, [orderData]);
 
+  // Check if user has changed and reset if needed
+  useEffect(() => {
+    const currentUser = localStorage.getItem('currentUserId');
+    if (orderData.userId && orderData.userId !== currentUser) {
+      // User has changed, reset order data
+      resetOrder();
+    }
+  }, [orderData.userId, resetOrder]);
+
   // Update artist selection (Step 1)
-  const selectArtist = (artist) => {
-    setOrderData(prev => ({
-      ...prev,
-      artist,
-      currentStep: ORDER_STEPS.CHOOSE_SERVICE,
-      completedSteps: [...new Set([...prev.completedSteps, ORDER_STEPS.SELECT_ARTIST])],
-    }));
-  };
+  const selectArtist = useCallback((artist) => {
+    const currentUser = localStorage.getItem('currentUserId');
+    setOrderData(prev => {
+      // Check if selecting a different artist - if so, reset everything except artist
+      const isDifferentArtist = prev.artist && (prev.artist.userId || prev.artist.id) !== (artist.userId || artist.id);
+      
+      if (isDifferentArtist) {
+        return {
+          userId: currentUser,
+          currentStep: ORDER_STEPS.CHOOSE_SERVICE,
+          completedSteps: [ORDER_STEPS.SELECT_ARTIST],
+          artist,
+          service: null,
+          creativeBrief: {
+            recipient: '',
+            occasion: '',
+            story: '',
+            mood: 'Balanced',
+          },
+          addOns: [],
+          totalPrice: 0,
+        };
+      }
+      
+      return {
+        ...prev,
+        userId: currentUser,
+        artist,
+        currentStep: ORDER_STEPS.CHOOSE_SERVICE,
+        completedSteps: [...new Set([...prev.completedSteps, ORDER_STEPS.SELECT_ARTIST])],
+      };
+    });
+  }, []);
 
   // Update service selection (Step 2)
-  const selectService = (service) => {
-    setOrderData(prev => ({
-      ...prev,
-      service,
-      currentStep: ORDER_STEPS.CREATIVE_BRIEF,
-      completedSteps: [...new Set([...prev.completedSteps, ORDER_STEPS.CHOOSE_SERVICE])],
-      totalPrice: service.price,
-    }));
-  };
+  const selectService = useCallback((service) => {
+    const currentUser = localStorage.getItem('currentUserId');
+    setOrderData(prev => {
+      // Check if selecting a different service - if so, reset creative brief and add-ons
+      const isDifferentService = prev.service && (prev.service.id || prev.service._id) !== (service.id || service._id);
+      
+      if (isDifferentService) {
+        return {
+          ...prev,
+          userId: currentUser,
+          service,
+          currentStep: ORDER_STEPS.CREATIVE_BRIEF,
+          completedSteps: [ORDER_STEPS.SELECT_ARTIST, ORDER_STEPS.CHOOSE_SERVICE],
+          creativeBrief: {
+            recipient: '',
+            occasion: '',
+            story: '',
+            mood: 'Balanced',
+          },
+          addOns: [],
+          totalPrice: service.price,
+        };
+      }
+      
+      return {
+        ...prev,
+        userId: currentUser,
+        service,
+        currentStep: ORDER_STEPS.CREATIVE_BRIEF,
+        completedSteps: [...new Set([...prev.completedSteps, ORDER_STEPS.CHOOSE_SERVICE])],
+        totalPrice: service.price,
+      };
+    });
+  }, []);
 
   // Update creative brief (Step 3)
-  const updateCreativeBrief = (briefData) => {
+  const updateCreativeBrief = useCallback((briefData) => {
     setOrderData(prev => ({
       ...prev,
       creativeBrief: { ...prev.creativeBrief, ...briefData },
     }));
-  };
+  }, []);
 
   // Complete creative brief step
-  const completeCreativeBrief = (briefData) => {
+  const completeCreativeBrief = useCallback((briefData) => {
     setOrderData(prev => ({
       ...prev,
       creativeBrief: { ...prev.creativeBrief, ...briefData },
       currentStep: ORDER_STEPS.ADD_ONS,
       completedSteps: [...new Set([...prev.completedSteps, ORDER_STEPS.CREATIVE_BRIEF])],
     }));
-  };
+  }, []);
 
   // Update add-ons (Step 4)
-  const updateAddOns = (addOns) => {
-    const addOnsTotal = addOns.reduce((sum, addon) => sum + addon.price, 0);
-    const servicePrice = orderData.service?.price || 0;
-    
-    setOrderData(prev => ({
-      ...prev,
-      addOns,
-      totalPrice: servicePrice + addOnsTotal,
-    }));
-  };
+  const updateAddOns = useCallback((addOns) => {
+    setOrderData(prev => {
+      const addOnsTotal = addOns.reduce((sum, addon) => sum + addon.price, 0);
+      const servicePrice = prev.service?.price || 0;
+      
+      return {
+        ...prev,
+        addOns,
+        totalPrice: servicePrice + addOnsTotal,
+      };
+    });
+  }, []);
 
   // Complete add-ons step
-  const completeAddOns = (addOns) => {
-    const addOnsTotal = addOns.reduce((sum, addon) => sum + addon.price, 0);
-    const servicePrice = orderData.service?.price || 0;
-    
+  const completeAddOns = useCallback((addOns) => {
+    setOrderData(prev => {
+      const addOnsTotal = addOns.reduce((sum, addon) => sum + addon.price, 0);
+      const servicePrice = prev.service?.price || 0;
+      
+      return {
+        ...prev,
+        addOns,
+        currentStep: ORDER_STEPS.REVIEW_PAY,
+        completedSteps: [...new Set([...prev.completedSteps, ORDER_STEPS.ADD_ONS])],
+        totalPrice: servicePrice + addOnsTotal,
+      };
+    });
+  }, []);
+
+  // Mark review & pay step as accessed/completed
+  const accessReviewPay = useCallback(() => {
     setOrderData(prev => ({
       ...prev,
-      addOns,
       currentStep: ORDER_STEPS.REVIEW_PAY,
-      completedSteps: [...new Set([...prev.completedSteps, ORDER_STEPS.ADD_ONS])],
-      totalPrice: servicePrice + addOnsTotal,
+      completedSteps: [...new Set([...prev.completedSteps, ORDER_STEPS.REVIEW_PAY])],
     }));
-  };
+  }, []);
 
   // Navigate to specific step (with validation)
   const goToStep = (step) => {
@@ -156,24 +268,6 @@ export const OrderProvider = ({ children }) => {
           break;
       }
     }
-  };
-
-  // Reset order (clear all data)
-  const resetOrder = () => {
-    setOrderData({
-      currentStep: ORDER_STEPS.SELECT_ARTIST,
-      completedSteps: [],
-      artist: null,
-      service: null,
-      creativeBrief: {
-        recipient: '',
-        occasion: '',
-        story: '',
-      },
-      addOns: [],
-      totalPrice: 0,
-    });
-    localStorage.removeItem('songOrderData');
   };
 
   // Submit order (API call would go here)
@@ -215,6 +309,7 @@ export const OrderProvider = ({ children }) => {
     completeCreativeBrief,
     updateAddOns,
     completeAddOns,
+    accessReviewPay,
     goToStep,
     resetOrder,
     submitOrder,

@@ -16,7 +16,6 @@ const AddOns = () => {
   const [loading, setLoading] = useState(true);
 
   // Fetch add-ons from API
-  console.log(orderData);
   useEffect(() => {
     const fetchAddOns = async () => {
       if (!orderData.artist || !orderData.service || !orderData.creativeBrief?.story) {
@@ -151,34 +150,6 @@ const AddOns = () => {
           </div>
         )}
 
-        {/* Order Summary */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm mx-12">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Order Summary</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-700">Service: {orderData.service?.title || 'N/A'}</span>
-              <span className="font-semibold text-gray-900">${orderData.service?.price || 0}</span>
-            </div>
-            {selectedAddOns.length > 0 && (
-              <>
-                <div className="border-t border-gray-200 pt-3">
-                  <p className="text-sm font-semibold text-gray-700 mb-2">Add-ons:</p>
-                  {selectedAddOns.map((addon) => (
-                    <div key={addon._id || addon.id} className="flex justify-between items-center text-sm mb-1">
-                      <span className="text-gray-600">• {addon.name}</span>
-                      <span className="text-gray-900">${addon.price}</span>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-            <div className="flex justify-between items-center pt-3 border-t border-gray-300">
-              <span className="text-lg font-bold text-gray-900">Total:</span>
-              <span className="text-3xl font-bold text-primary">${grandTotal}</span>
-            </div>
-          </div>
-        </div>
-
         {/* Actions */}
         <div className="flex gap-4 pt-4 mx-12">
           <button
@@ -191,7 +162,7 @@ const AddOns = () => {
             onClick={handleContinue}
             className="flex-1 rounded-full bg-primary px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-primary/90 shadow-lg hover:shadow-xl"
           >
-            Continue to Payment
+            Continue to Review
           </button>
         </div>
         </div>

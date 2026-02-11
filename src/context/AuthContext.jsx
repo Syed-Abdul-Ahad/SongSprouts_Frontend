@@ -18,9 +18,15 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = async () => {
     try {
       const userData = await authAPI.getCurrentUser();
-      setUser(userData?.data?.user || userData?.data);
+      const user = userData?.data?.user || userData?.data;
+      setUser(user);
+      // Store current user ID in localStorage for OrderContext
+      if (user?._id) {
+        localStorage.setItem('currentUserId', user._id);
+      }
     } catch (error) {
       setUser(null);
+      localStorage.removeItem('currentUserId');
     } finally {
       setIsCheckingAuth(false);
     }
@@ -30,9 +36,14 @@ export const AuthProvider = ({ children }) => {
     try {
       await authAPI.logout();
       setUser(null);
+      // Clear user ID and order data on logout
+      localStorage.removeItem('currentUserId');
+      localStorage.removeItem('songOrderData');
     } catch (error) {
       console.error('Logout error:', error);
       setUser(null);
+      localStorage.removeItem('currentUserId');
+      localStorage.removeItem('songOrderData');
     }
   };
 
