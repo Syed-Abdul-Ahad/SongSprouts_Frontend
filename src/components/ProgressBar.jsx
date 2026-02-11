@@ -46,8 +46,9 @@ const ProgressBar = ({ showLabels = true, className = '' }) => {
                   onClick={() => handleStepClick(item.step)}
                   disabled={!isAccessible}
                   className={`
-                    relative flex h-12 w-12 items-center justify-center rounded-full 
-                    transition-all duration-300 
+                    relative flex items-center justify-center rounded-full 
+                    transition-all duration-300
+                    h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12
                     ${isCompleted 
                       ? 'bg-[#2D5F3F] cursor-pointer hover:bg-[#234a31] shadow-lg' 
                       : isCurrent 
@@ -60,7 +61,7 @@ const ProgressBar = ({ showLabels = true, className = '' }) => {
                   {isCompleted ? (
                     // Check mark for completed steps
                     <svg 
-                      className="h-6 w-6 text-white" 
+                      className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-white" 
                       fill="none" 
                       strokeLinecap="round" 
                       strokeLinejoin="round" 
@@ -72,7 +73,7 @@ const ProgressBar = ({ showLabels = true, className = '' }) => {
                     </svg>
                   ) : (
                     // Step number
-                    <span className={`text-lg font-bold ${isCurrent || isCompleted ? 'text-white' : 'text-gray-500'}`}>
+                    <span className={`text-sm sm:text-base md:text-lg font-bold ${isCurrent || isCompleted ? 'text-white' : 'text-gray-500'}`}>
                       {item.step}
                     </span>
                   )}
@@ -82,8 +83,9 @@ const ProgressBar = ({ showLabels = true, className = '' }) => {
                 {showLabels && (
                   <span 
                     className={`
-                      mt-2 text-xs font-medium text-center max-w-22 
+                      mt-1 sm:mt-2 text-[9px] sm:text-xs font-medium text-center max-w-24
                       ${isCurrent ? 'text-[#2D5F3F] font-semibold' : 'text-gray-600'}
+                      
                     `}
                   >
                     {item.label}
@@ -95,7 +97,7 @@ const ProgressBar = ({ showLabels = true, className = '' }) => {
               {!isLast && (
                 <div 
                   className={`
-                    flex-1 h-1 mx-2 transition-all duration-300
+                    flex-1 h-0.5 sm:h-1 mx-1 sm:mx-2 transition-all duration-300
                     ${isCompleted 
                       ? 'bg-[#2D5F3F]' 
                       : 'bg-gray-300'

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useOrder } from '../../context/OrderContext';
 import Header from '../../components/Header';
 import ProgressBar from '../../components/ProgressBar';
-import { FormSection, FormInput, FormSelect, FormTextarea } from './subcomponents';
+import { FormSection, FormInput, FormSelect, FormTextarea, MoodSlider } from './subcomponents';
 import { showToast } from '../../utils/toast';
 import FormHeader from '../../components/FormHeader';
 
@@ -16,6 +16,7 @@ const CreativeBreif = () => {
     recipient: orderData.creativeBrief?.recipient || '',
     occasion: orderData.creativeBrief?.occasion || '',
     story: orderData.creativeBrief?.story || '',
+    mood: orderData.creativeBrief?.mood || 'Balanced',
   });
 
   // Occasion options
@@ -109,9 +110,9 @@ const CreativeBreif = () => {
         </div>
 
 
-        <div className='relative w-full bg-form-bg rounded-3xl p-8 shadow-lg border border-outline'>
+        <div className='relative w-full bg-form-bg rounded-3xl p-4 sm:p-6 md:p-8 shadow-lg border border-outline'>
         {/* Progress Bar */}
-        <div className="mb-10 mx-16">
+        <div className="mb-6 sm:mb-8 md:mb-10 mx-2 sm:mx-8 md:mx-16">
           <ProgressBar />
         </div>
 
@@ -182,27 +183,18 @@ const CreativeBreif = () => {
             </p>
           </FormSection>
 
-          {/* Order Summary */}
-          {orderData.artist && orderData.service && (
-            <div className="bg-primary/5 rounded-2xl p-6 border border-primary/20">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Order Summary</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700">Artist:</span>
-                  <span className="font-semibold text-gray-900">{orderData.artist.name}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700">Service:</span>
-                  <span className="font-semibold text-gray-900">{orderData.service.title}</span>
-                </div>
-                <div className="flex justify-between items-center pt-3 border-t border-primary/20">
-                  <span className="text-gray-700 font-semibold">Current Total:</span>
-                  <span className="text-2xl font-bold text-primary">${orderData.service.price}</span>
-                </div>
-              </div>
-            </div>
-          )}
-
+          <FormSection 
+          title="Set the Vibe"
+          subtitle="Adjust the slider to match the rhythm and emotion of your message"
+          >
+            <MoodSlider
+              name="mood"
+              value={['Deep & Soulful', 'Soft & Chill', 'Balanced', 'Bright & Groovy', 'Upbeat & Energetic'].indexOf(formData.mood) !== -1 
+                ? ['Deep & Soulful', 'Soft & Chill', 'Balanced', 'Bright & Groovy', 'Upbeat & Energetic'].indexOf(formData.mood) 
+                : 2}
+              onChange={handleChange}
+            />
+          </FormSection>
           {/* Form Actions */}
           <div className="flex gap-4 pt-4">
             <button
