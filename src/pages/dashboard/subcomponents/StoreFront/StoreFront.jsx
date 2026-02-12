@@ -6,6 +6,7 @@ import ProductCard from './subcomponents/ProductCard';
 
 const StoreFront = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,12 +43,26 @@ const StoreFront = () => {
     // Add the new product to the list
     setProducts(prev => [newProduct, ...prev]);
     setIsModalOpen(false);
+    setEditingProduct(null);
     showToast.success('Product added successfully!');
   };
 
+  const handleUpdateProduct = (updatedProduct) => {
+    // Update the product in the list
+    setProducts(prev => prev.map(p => 
+      (p._id || p.id) === (updatedProduct._id || updatedProduct.id) ? updatedProduct : p
+    ));
+    setIsModalOpen(false);
+    setEditingProduct(null);
+    showToast.success('Product updated successfully!');
+  };
+
   const handleEditProduct = (productId) => {
-    console.log('Edit product:', productId);
-    // TODO: Implement edit functionality
+    const product = products.find(p => (p._id || p.id) === productId);
+    if (product) {
+      setEditingProduct(product);
+      setIsModalOpen(true);
+    }
   };
 
   const handleDeleteProduct = (productId) => {
@@ -152,11 +167,15 @@ const StoreFront = () => {
             Try Again
           </button>
         </div>
-        {/* Add Product Modal */}
+        {/* Add/Edit Product Modal */}
         <AddProductModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSubmit={handleAddProduct}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditingProduct(null);
+          }}
+          onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct}
+          editProduct={editingProduct}
         />
       </div>
     );
@@ -235,11 +254,15 @@ const StoreFront = () => {
         </div>
       )}
 
-      {/* Add Product Modal */}
+      {/* Add/Edit Product Modal */}
       <AddProductModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleAddProduct}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingProduct(null);
+        }}
+        onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct}
+        editProduct={editingProduct}
       />
     </div>
   );

@@ -3,7 +3,7 @@ import { artistAPI } from '../../../../../api/artist';
 import { showToast } from '../../../../../utils/toast';
 import ColorPicker from './ColorPicker';
 
-const AddProductModal = ({ isOpen, onClose, onSubmit }) => {
+const AddProductModal = ({ isOpen, onClose, onSubmit, editProduct = null }) => {
   const [formData, setFormData] = useState({
     productName: '',
     productDescription: '',
@@ -15,14 +15,47 @@ const AddProductModal = ({ isOpen, onClose, onSubmit }) => {
   const [sizes, setSizes] = useState([]);
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [existingImageUrls, setExistingImageUrls] = useState([]); // For edit mode
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
   // Common size options
   const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
 
+  // Pre-fill form when editing
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen && editProduct) {
+      // Pre-fill form data
+      setFormData({
+        productName: editProduct.productName || '',
+        productDescription: editProduct.productDescription || '',
+        productSpecification: editProduct.productSpecification || '',
+        productPrice: editProduct.productPrice?.toString() || '',
+        colors: editProduct.colors || [],
+      });
+
+      // Pre-fill sizes
+      if (editProduct.sizes && editProduct.sizes.length > 0) {
+        setSizes(editProduct.sizes.map(s => ({
+          size: s.size,
+          price: s.price?.toString() || ''
+        })));
+      } else {
+        setSizes([]);
+      }
+
+      // Handle existing images - show URLs as previews
+      if (editProduct.productImageUrls && editProduct.productImageUrls.length > 0) {
+        setExistingImageUrls(editProduct.productImageUrls);
+        setImagePreviews(editProduct.productImageUrls);
+      } else {
+        setExistingImageUrls([]);
+        setImagePreviews([]);
+      }
+      
+      setImages([]);
+      setErrors({});
+    } else if (!isOpen) {
       // Reset form when modal closes
       setFormData({
         productName: '',
@@ -34,9 +67,10 @@ const AddProductModal = ({ isOpen, onClose, onSubmit }) => {
       setSizes([]);
       setImages([]);
       setImagePreviews([]);
+      setExistingImageUrls([]);
       setErrors({});
     }
-  }, [isOpen]);
+  }, [isOpen, editProduct]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -54,7 +88,8 @@ const AddProductModal = ({ isOpen, onClose, onSubmit }) => {
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     
-    if (files.length + images.length > 5) {
+    const totalImages = existingImageUrls.length + images.length + files.length;
+    if (totalImages > 5) {
       showToast.error('Maximum 5 images allowed');
       return;
     }
@@ -90,7 +125,18 @@ const AddProductModal = ({ isOpen, onClose, onSubmit }) => {
   };
 
   const removeImage = (index) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
+    const numExistingImages = existingImageUrls.length;
+    
+    if (index < numExistingImages) {
+      // Remove from existing URLs
+      setExistingImageUrls(prev => prev.filter((_, i) => i !== index));
+    } else {
+      // Remove from new uploads
+      const adjustedIndex = index - numExistingImages;
+      setImages(prev => prev.filter((_, i) => i !== adjustedIndex));
+    }
+    
+    // Always remove from previews
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
@@ -123,7 +169,7 @@ const AddProductModal = ({ isOpen, onClose, onSubmit }) => {
       newErrors.productPrice = 'Valid price is required';
     }
 
-    if (images.length === 0) {
+    if (images.length === 0 && existingImageUrls.length === 0) {
       newErrors.images = 'At least one image is required';
     }
 
@@ -176,18 +222,28 @@ const AddProductModal = ({ isOpen, onClose, onSubmit }) => {
         formDataToSend.append('productImages', image);
       });
 
-      // Call API
-      const response = await artistAPI.createMerchandize(formDataToSend);
+      // If editing and keeping existing images, send their URLs
+      if (editProduct && existingImageUrls.length > 0) {
+        formDataToSend.append('existingImages', JSON.stringify(existingImageUrls));
+      }
+
+      // Call API - create or update
+      let response;
+      if (editProduct) {
+        response = await artistAPI.updateMerchandize(editProduct._id || editProduct.id, formDataToSend);
+      } else {
+        response = await artistAPI.createMerchandize(formDataToSend);
+      }
       
       // Handle different response formats
-      const newProduct = response.data?.merchandize || response.data || response;
+      const productData = response.data?.merchandize || response.data || response;
       
-      showToast.success('Product created successfully!');
-      onSubmit(newProduct);
+      showToast.success(editProduct ? 'Product updated successfully!' : 'Product created successfully!');
+      onSubmit(productData);
       onClose();
     } catch (error) {
-      console.error('Error creating product:', error);
-      showToast.error(error.response?.data?.message || 'Failed to create product');
+      console.error('Error saving product:', error);
+      showToast.error(error.response?.data?.message || `Failed to ${editProduct ? 'update' : 'create'} product`);
     } finally {
       setIsSubmitting(false);
     }
@@ -200,7 +256,7 @@ const AddProductModal = ({ isOpen, onClose, onSubmit }) => {
       <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
-          <h2 className="text-2xl font-bold text-gray-900">Add New Product</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{editProduct ? 'Edit Product' : 'Add New Product'}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -437,7 +493,7 @@ const AddProductModal = ({ isOpen, onClose, onSubmit }) => {
             )}
 
             {/* Upload Button */}
-            {images.length < 5 && (
+            {imagePreviews.length < 5 && (
               <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
                 errors.images ? 'border-red-500' : 'border-gray-300'
               }`}>
@@ -504,10 +560,10 @@ const AddProductModal = ({ isOpen, onClose, onSubmit }) => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Creating...
+                  {editProduct ? 'Updating...' : 'Creating...'}
                 </span>
               ) : (
-                'Create Product'
+                editProduct ? 'Update Product' : 'Create Product'
               )}
             </button>
             <button
