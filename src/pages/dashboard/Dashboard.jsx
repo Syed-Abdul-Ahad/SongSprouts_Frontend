@@ -3,7 +3,7 @@ import Sidebar from './subcomponents/Sidebar';
 import Home from './subcomponents/home/Home';
 import Profile from './subcomponents/profile/Profile';
 import Orders from './subcomponents/orders/Orders';
-import StoreFront from './subcomponents/StoreFront';
+import StoreFront from './subcomponents/StoreFront/StoreFront';
 import Chat from './subcomponents/Chat';
 import Referrals from './subcomponents/Referrals';
 
