@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { artistAPI } from '../../../../api/artist';
 import { showToast } from '../../../../utils/toast';
 import AddProductModal from './subcomponents/AddProductModal';
+import DeleteProductModal from './subcomponents/DeleteProductModal';
 import ProductCard from './subcomponents/ProductCard';
 
 const StoreFront = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [deletingProduct, setDeletingProduct] = useState(null);
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -66,10 +69,16 @@ const StoreFront = () => {
   };
 
   const handleDeleteProduct = (productId) => {
-    console.log('Delete product:', productId);
-    // TODO: Implement delete API call
-    setProducts(products.filter(p => p._id !== productId && p.id !== productId));
-    showToast.success('Product deleted successfully!');
+    const product = products.find(p => (p._id || p.id) === productId);
+    if (product) {
+      setDeletingProduct(product);
+      setIsDeleteModalOpen(true);
+    }
+  };
+
+  const deleteProduct = (productId) => {
+    // Remove product from list after successful API call
+    setProducts(products.filter(p => (p._id || p.id) !== productId));
   };
 
   // Loading state
@@ -177,6 +186,17 @@ const StoreFront = () => {
           onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct}
           editProduct={editingProduct}
         />
+        
+        {/* Delete Product Modal */}
+        <DeleteProductModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            setDeletingProduct(null);
+          }}
+          product={deletingProduct}
+          onDelete={deleteProduct}
+        />
       </div>
     );
   }
@@ -263,6 +283,17 @@ const StoreFront = () => {
         }}
         onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct}
         editProduct={editingProduct}
+      />
+
+      {/* Delete Product Modal */}
+      <DeleteProductModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeletingProduct(null);
+        }}
+        product={deletingProduct}
+        onDelete={deleteProduct}
       />
     </div>
   );

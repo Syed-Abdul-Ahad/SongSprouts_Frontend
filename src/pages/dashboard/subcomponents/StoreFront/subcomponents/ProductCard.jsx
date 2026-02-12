@@ -2,15 +2,9 @@ import { useState } from 'react';
 
 const ProductCard = ({ product, onEdit, onDelete }) => {
   const [imageError, setImageError] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Handle both MongoDB _id and regular id
   const productId = product._id || product.id;
-
-  const handleDelete = () => {
-    onDelete(productId);
-    setShowDeleteConfirm(false);
-  };
 
   const getColorStyle = (color) => {
     const colorMap = {
@@ -52,7 +46,7 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
           </svg>
         </button>
         <button
-          onClick={() => setShowDeleteConfirm(true)}
+          onClick={() => onDelete(productId)}
           className="bg-white p-2 rounded-full shadow-lg hover:bg-red-50 transition-colors duration-200"
           title="Delete Product"
         >
@@ -70,32 +64,6 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
           </svg>
         </button>
       </div>
-
-      {/* Delete Confirmation Popup */}
-      {showDeleteConfirm && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 z-20 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-2xl">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Product?</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Are you sure you want to delete "{product.productName}"? This action cannot be undone.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleDelete}
-                className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors duration-200"
-              >
-                Delete
-              </button>
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition-colors duration-200"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Product Image */}
       <div className="aspect-square overflow-hidden bg-gray-100">
