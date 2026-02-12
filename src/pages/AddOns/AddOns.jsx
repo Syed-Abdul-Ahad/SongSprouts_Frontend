@@ -115,7 +115,7 @@ const AddOns = () => {
 
         <div className='relative w-full bg-form-bg rounded-3xl p-8 shadow-lg border border-outline'>
         {/* Progress Bar */}
-        <div className="mb-10 mx-16">
+        <div className="mb-10 md:mx-16">
           <ProgressBar />
         </div>
 
@@ -124,7 +124,7 @@ const AddOns = () => {
 
         {/* Add-ons Grid */}
         {availableAddOns.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-3 mx-12 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-3 md:mx-12 mb-10">
             {availableAddOns.map((addOn) => {
               const isSelected = selectedAddOns.some(item => (item.id || item._id) === (addOn.id || addOn._id));
               
@@ -151,7 +151,7 @@ const AddOns = () => {
         )}
 
         {/* Actions */}
-        <div className="flex gap-4 pt-4 mx-12">
+        <div className="flex max-sm:flex-col gap-4 sm:pt-4 md:mx-12">
           <button
             onClick={handleSkip}
             className="flex-1 rounded-full border-2 border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 transition-all duration-300 hover:border-gray-400 hover:bg-gray-50"
