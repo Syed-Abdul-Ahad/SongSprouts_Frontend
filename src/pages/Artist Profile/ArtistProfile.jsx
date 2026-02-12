@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../../components/Header';
+// import ProgressBar from '../../components/ProgressBar';
 import { ProfileHeader, ServicesOfferings } from './subcomponents';
 import { artistAPI } from '../../api/artist';
 import { showToast } from '../../utils/toast';
+import { useOrder } from '../../context/OrderContext';
+import { useNavigate } from 'react-router-dom';
 
 const ArtistProfile = () => {
   const { artistId } = useParams(); // This is actually userId now
+  const { orderData } = useOrder();
   const [artist, setArtist] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   // Fetch artist data by ID
   useEffect(() => {
     fetchArtistData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [artistId]);
 
   // Transform API service offerings to component format
@@ -101,13 +108,20 @@ const ArtistProfile = () => {
         {/* Back Button */}
         <div className='flex items-center gap-x-3'>
             <button 
-          onClick={() => window.history.back()}
+          onClick={() => navigate('/home')}
           className="flex items-center rounded-full bg-primary px-4 py-4 text-white font-semibold shadow-md transition-all duration-300 hover:bg-primary/90 hover:shadow-lg"
         >
           <img src="/BackIcon.png" alt="" width={18} height={20}/>
         </button>
           <span className='font-bold text-xl'>Back</span >  
         </div>
+
+        {/* Progress Bar - Show if artist is selected in order flow
+        {orderData.artist && (
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <ProgressBar />
+          </div>
+        )} */}
 
         {/* Profile Header Section */}
         <ProfileHeader artist={artist} />

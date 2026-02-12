@@ -11,7 +11,6 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [expandedAddons, setExpandedAddons] = useState([]);
   const [profilePicture, setProfilePicture] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const fileInputRef = useRef(null);
@@ -127,14 +126,6 @@ const Profile = () => {
         ...formData,
         selectedGenres: [...formData.selectedGenres, genre]
       });
-    }
-  };
-
-  const toggleAddon = (index) => {
-    if (expandedAddons.includes(index)) {
-      setExpandedAddons(expandedAddons.filter(i => i !== index));
-    } else {
-      setExpandedAddons([...expandedAddons, index]);
     }
   };
 
@@ -701,12 +692,10 @@ const Profile = () => {
                 </svg>
               </button>
               <button
-                onClick={() => toggleAddon(index)}
                 className="w-full px-6 py-4 pr-28 flex items-center justify-between text-white hover:bg-primary/90 transition-colors"
               >
                 <div className="text-left flex-1">
                   <h4 className="font-bold text-lg">{addon.name}</h4>
-                  {expandedAddons.includes(index) && (
                     <>
                       <p className="text-white/80 text-sm mt-2">{addon.description}</p>
                       {addon.customFields && Object.keys(addon.customFields).length > 0 && (
@@ -722,12 +711,11 @@ const Profile = () => {
                         </div>
                       )}
                     </>
-                  )}
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <span className="font-bold text-lg whitespace-nowrap">+ ${addon.price}</span>
                   <svg 
-                    className={`w-6 h-6 transition-transform ${expandedAddons.includes(index) ? 'rotate-45' : ''}`}
+                    className={`w-6 h-6 transition-transform `}
                     fill="none" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"

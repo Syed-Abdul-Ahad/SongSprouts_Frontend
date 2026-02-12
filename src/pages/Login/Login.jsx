@@ -20,7 +20,16 @@ const Login = () => {
     try {
       const data = await authAPI.login({ email, password });
       console.log('Login successful, user data:', data);
-      setUser(data?.data?.user);
+      const user = data?.data?.user;
+      setUser(user);
+      
+      // Store current user ID in localStorage for OrderContext
+      if (user?._id) {
+        localStorage.setItem('currentUserId', user._id);
+      }
+      // Clear any previous order data from different user
+      localStorage.removeItem('songOrderData');
+      
       toast.success('Login successful! Welcome back.');
       navigate('/dashboard');
     } catch (error) {

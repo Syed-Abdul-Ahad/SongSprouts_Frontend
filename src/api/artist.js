@@ -1,9 +1,24 @@
 import api from './axios';
 
 export const artistAPI = {
-  // Get all artists with pagination
-  getAllArtists: async (page = 1, limit = 10) => {
-    const response = await api.get(`/artists?page=${page}&limit=${limit}`);
+  // Get all artists with pagination and filters
+  getAllArtists: async (page = 1, limit = 10, filters = {}) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+
+    // Add optional filters
+    if (filters.search) params.append('search', filters.search);
+    // Handle genres array - convert to comma-separated string
+    if (filters.genres && filters.genres.length > 0) {
+      params.append('genre', filters.genres.join(','));
+    }
+    if (filters.location) params.append('location', filters.location);
+    if (filters.sortBy) params.append('sortBy', filters.sortBy);
+    if (filters.sortOrder) params.append('sortOrder', filters.sortOrder);
+
+    const response = await api.get(`/artists?${params.toString()}`);
     return response.data;
   },
 
@@ -57,6 +72,49 @@ export const artistAPI = {
   // Create addon
   createAddon: async (data) => {
     const response = await api.post(`/artists/addons`, data);
+    return response.data;
+  },
+
+  getAddonByArtist: async()=>{
+    const response = await api.get(`/artists/addons`);
+    return response.data;
+  },
+
+  // Create merchandize/product
+  createMerchandize: async (formData) => {
+    const response = await api.post('/artists/merchandize', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  // Get all merchandize for an artist
+  getAllMerchandize: async () => {
+    const response = await api.get('/artists/merchandize');
+    return response.data;
+  },
+
+  // Get single merchandize by ID
+  getMerchandizeById: async (merchandizeId) => {
+    const response = await api.get(`/artists/merchandize/${merchandizeId}`);
+    return response.data;
+  },
+
+  // Update merchandize
+  updateMerchandize: async (merchandizeId, formData) => {
+    const response = await api.patch(`/artists/merchandize/${merchandizeId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  // Delete merchandize
+  deleteMerchandize: async (merchandizeId) => {
+    const response = await api.delete(`/artists/merchandize/${merchandizeId}`);
     return response.data;
   },
 };

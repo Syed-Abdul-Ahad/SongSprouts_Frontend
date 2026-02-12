@@ -40,7 +40,16 @@ const Register = () => {
           password: formData.password,
           role: 'artist',
         });
-        setUser(data.user);
+        const user = data.user;
+        setUser(user);
+        
+        // Store current user ID in localStorage for OrderContext
+        if (user?._id) {
+          localStorage.setItem('currentUserId', user._id);
+        }
+        // Clear any previous order data
+        localStorage.removeItem('songOrderData');
+        
         toast.success('Account created successfully!');
         // Redirect to artist onboarding page
         navigate('/artist-onboarding');
