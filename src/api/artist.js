@@ -78,5 +78,43 @@ export const artistAPI = {
   getAddonByArtist: async()=>{
     const response = await api.get(`/artists/addons`);
     return response.data;
-  }
+  },
+
+  // Create merchandize/product
+  createMerchandize: async (formData) => {
+    const response = await api.post('/artists/merchandize', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  // Get all merchandize for an artist
+  getAllMerchandize: async () => {
+    const response = await api.get('/artists/merchandize');
+    return response.data;
+  },
+
+  // Get single merchandize by ID
+  getMerchandizeById: async (merchandizeId) => {
+    const response = await api.get(`/artists/merchandize/${merchandizeId}`);
+    return response.data;
+  },
+
+  // Update merchandize
+  updateMerchandize: async (merchandizeId, formData) => {
+    const response = await api.patch(`/artists/merchandize/${merchandizeId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  // Delete merchandize
+  deleteMerchandize: async (merchandizeId) => {
+    const response = await api.delete(`/artists/merchandize/${merchandizeId}`);
+    return response.data;
+  },
 };
