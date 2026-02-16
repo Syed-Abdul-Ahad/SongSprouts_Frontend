@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { artistAPI } from '../../api/artist';
 import { showToast } from '../../utils/toast';
+import Loading from '../../components/Loading';
+import Error from '../../components/Error';
+import { getColorStyle } from '../../utils/products';
+import { ArrowLeft, Check, Minus, Plus, ShoppingCart, Lock, Truck } from 'lucide-react';
 
 const ProductDetail = () => {
   const { merchandizeId } = useParams();
@@ -23,9 +27,8 @@ const ProductDetail = () => {
       setIsLoading(true);
       setError(null);
       const response = await artistAPI.getMerchandizeById(merchandizeId);
-      console.log('Product response:', response);
       
-      const productData = response.data?.merchandize || response.data || response;
+      const productData = response.data?.merchandize;
       setProduct(productData);
 
       // Set default selections
@@ -44,26 +47,6 @@ const ProductDetail = () => {
     }
   };
 
-  const getColorStyle = (color) => {
-    const colorMap = {
-      'Black': '#000000',
-      'White': '#FFFFFF',
-      'Navy': '#000080',
-      'Gray': '#808080',
-      'Grey': '#808080',
-      'Red': '#FF0000',
-      'Blue': '#0000FF',
-      'Green': '#008000',
-      'Yellow': '#FFFF00',
-      'Pink': '#FFC0CB',
-      'Purple': '#800080',
-      'Orange': '#FFA500',
-      'Brown': '#A52A2A',
-      'Natural': '#F5F5DC',
-      'Beige': '#F5F5DC'
-    };
-    return colorMap[color] || color;
-  };
 
   const getCurrentPrice = () => {
     if (selectedSize && selectedSize.price) {
@@ -88,64 +71,14 @@ const ProductDetail = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="text-center">
-          <svg 
-            className="animate-spin h-16 w-16 text-primary mx-auto mb-4" 
-            xmlns="http://www.w3.org/2000/svg" 
-            fill="none" 
-            viewBox="0 0 24 24"
-          >
-            <circle 
-              className="opacity-25" 
-              cx="12" 
-              cy="12" 
-              r="10" 
-              stroke="currentColor" 
-              strokeWidth="4"
-            />
-            <path 
-              className="opacity-75" 
-              fill="currentColor" 
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
-          <p className="text-gray-600 text-lg">Loading product...</p>
-        </div>
+        <Loading />
       </div>
     );
   }
-
   // Error state
   if (error || !product) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="text-center max-w-md">
-          <div className="bg-red-100 rounded-full p-8 inline-block mb-6">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-20 w-20 text-red-600" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
-              />
-            </svg>
-          </div>
-          <h3 className="text-2xl font-semibold text-gray-900 mb-3">Product Not Found</h3>
-          <p className="text-gray-600 mb-6">{error || 'The product you are looking for does not exist.'}</p>
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors duration-200"
-          >
-            Go Back
-          </button>
-        </div>
-      </div>
+        <Error message={error || 'The product you are looking for does not exist.'} />
     );
   }
 
@@ -158,18 +91,7 @@ const ProductDetail = () => {
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
           >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-5 w-5" 
-              viewBox="0 0 20 20" 
-              fill="currentColor"
-            >
-              <path 
-                fillRule="evenodd" 
-                d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" 
-                clipRule="evenodd" 
-              />
-            </svg>
+            <ArrowLeft className="h-5 w-5" />
             <span className="font-medium">Back</span>
           </button>
         </div>
@@ -181,7 +103,7 @@ const ProductDetail = () => {
           {/* Image Gallery */}
           <div className="space-y-4">
             {/* Main Image */}
-            <div className="aspect-square bg-white rounded-2xl overflow-hidden shadow-lg">
+            <div className="aspect-square lg:aspect-4/3 lg:max-h-125 bg-white rounded-2xl overflow-hidden shadow-lg">
               <img
                 src={
                   product.productImageUrls?.[selectedImage] || 
@@ -218,7 +140,7 @@ const ProductDetail = () => {
           </div>
 
           {/* Product Information */}
-          <div className="space-y-6">
+          <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
             {/* Product Title and Price */}
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -274,22 +196,13 @@ const ProductDetail = () => {
                       title={color}
                     >
                       {selectedColor === color && (
-                        <svg 
-                          xmlns="http://www.w3.org/2000/svg" 
+                        <Check 
                           className={`h-6 w-6 mx-auto ${
                             color === 'White' || color === 'Yellow' || color === 'Natural' || color === 'Beige' 
                               ? 'text-gray-800' 
                               : 'text-white'
                           }`}
-                          viewBox="0 0 20 20" 
-                          fill="currentColor"
-                        >
-                          <path 
-                            fillRule="evenodd" 
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
-                            clipRule="evenodd" 
-                          />
-                        </svg>
+                        />
                       )}
                     </button>
                   ))}
@@ -334,18 +247,7 @@ const ProductDetail = () => {
                     disabled={quantity <= 1}
                     className="px-4 py-3 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      className="h-5 w-5" 
-                      viewBox="0 0 20 20" 
-                      fill="currentColor"
-                    >
-                      <path 
-                        fillRule="evenodd" 
-                        d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" 
-                        clipRule="evenodd" 
-                      />
-                    </svg>
+                    <Minus className="h-5 w-5" />
                   </button>
                   <span className="px-6 py-3 font-semibold text-lg min-w-16 text-center">
                     {quantity}
@@ -355,18 +257,7 @@ const ProductDetail = () => {
                     disabled={quantity >= 99}
                     className="px-4 py-3 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      className="h-5 w-5" 
-                      viewBox="0 0 20 20" 
-                      fill="currentColor"
-                    >
-                      <path 
-                        fillRule="evenodd" 
-                        d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" 
-                        clipRule="evenodd" 
-                      />
-                    </svg>
+                    <Plus className="h-5 w-5" />
                   </button>
                 </div>
                 <span className="text-gray-600">
@@ -383,20 +274,7 @@ const ProductDetail = () => {
                 onClick={handleAddToCart}
                 className="w-full bg-primary text-white py-4 rounded-lg font-semibold text-lg hover:bg-primary/90 transition-colors duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
               >
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="h-6 w-6" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  stroke="currentColor"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" 
-                  />
-                </svg>
+                <ShoppingCart className="h-6 w-6" />
                 Add to Cart
               </button>
             </div>
@@ -404,33 +282,14 @@ const ProductDetail = () => {
             {/* Additional Info */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
               <div className="flex items-start gap-3">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="h-5 w-5 text-blue-600 mt-0.5" 
-                  viewBox="0 0 20 20" 
-                  fill="currentColor"
-                >
-                  <path 
-                    fillRule="evenodd" 
-                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" 
-                    clipRule="evenodd" 
-                  />
-                </svg>
+                <Lock className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div>
                   <h4 className="font-semibold text-blue-900">Secure Checkout</h4>
                   <p className="text-sm text-blue-700">Your payment information is protected</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="h-5 w-5 text-blue-600 mt-0.5" 
-                  viewBox="0 0 20 20" 
-                  fill="currentColor"
-                >
-                  <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-                  <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
-                </svg>
+                <Truck className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div>
                   <h4 className="font-semibold text-blue-900">Fast Shipping</h4>
                   <p className="text-sm text-blue-700">Get your order delivered quickly</p>
