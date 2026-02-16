@@ -13,6 +13,7 @@ import CreativeBreif from '../pages/Creative Breif/CreativeBreif';
 import AddOns from '../pages/AddOns/AddOns';
 import { useAuth } from '../context/AuthContext';
 import ReviewAndPay from '../pages/Review & Pay/ReviewAndPay';
+import ProductDetail from '../pages/ProductDetail/ProductDetail';
 
 const AppRoutes = () => {
   const { isAuthenticated, user } = useAuth();
@@ -46,6 +47,9 @@ const AppRoutes = () => {
       {/* Public Home and Artist Routes */}
       <Route path="/home" element={<Home />} />
       <Route path="/artist/:artistId" element={<ArtistProfile />} />
+      
+      {/* Product Detail Route */}
+      <Route path="/product/:merchandizeId" element={<ProductDetail />} />
       
       {/* Order Flow Routes */}
       <Route path="/creative-brief" element={<CreativeBreif />} />
