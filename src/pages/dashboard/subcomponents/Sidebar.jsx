@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { authAPI } from '../../../api/auth';
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -66,6 +67,11 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     },
   ];
 
+  const handleLogout = () => {   
+    const response = authAPI.logout();
+    window.location.href = '/login';
+  }
+
   return (
     <>
       {/* Desktop Sidebar */}
@@ -92,6 +98,9 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
               <span className="text-[9px] font-light">{item.label}</span></div>
             </button>
           ))}
+          <button className=' text-white rounded-full cursor-pointer mt-4' onClick={() => handleLogout()}>
+            logout
+          </button>
         </div>
       </div>
 
@@ -190,6 +199,9 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                 <span className="text-sm font-medium">{item.label}</span>
               </button>
             ))}
+          </div>
+          <div className='bg-red-500 py-2 px-4 text-white rounded-full cursor-pointer hover:bg-red-600 transition-colors mt-4' onClick={() => handleLogout()}>
+            logout
           </div>
         </div>
       </div>
