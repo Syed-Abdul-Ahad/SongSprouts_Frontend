@@ -85,25 +85,24 @@ const ProductDetail = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header with back button */}
-      <div className="bg-gray-50 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+       {/* Back Button */}
+        <div className="flex items-center gap-x-3 absolute top-4 left-4">
+          <button 
+            onClick={()=> navigate(-1)}
+            className="flex items-center rounded-full bg-primary px-4 py-4 text-white font-semibold shadow-md transition-all duration-300 hover:bg-primary/90 hover:shadow-lg"
           >
-            <ArrowLeft className="h-5 w-5" />
-            <span className="font-medium">Back</span>
+            <img src="/BackIcon.png" alt="" width={18} height={20}/>
           </button>
+          <span className="font-bold text-xl">Back</span>
         </div>
-      </div>
 
       {/* Main content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-5">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-5 mt-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
           <div className="space-y-4">
             {/* Main Image */}
-            <div className="aspect-square lg:aspect-4/3 lg:max-h-125 bg-white rounded-2xl overflow-hidden shadow-lg">
+            <div className="aspect-square max-h-90 lg:aspect-4/3 lg:max-h-100 bg-white rounded-2xl overflow-hidden shadow-lg mx-auto">
               <img
                 src={
                   product.productImageUrls?.[selectedImage] || 
@@ -143,11 +142,11 @@ const ProductDetail = () => {
           <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
             {/* Product Title and Price */}
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
                 {product.productName}
               </h1>
               <div className="flex items-baseline gap-3">
-                <span className="text-4xl font-bold text-primary">
+                <span className="text-2xl md:text-3xl font-bold text-primary">
                   ${getCurrentPrice().toFixed(2)}
                 </span>
                 {selectedSize && selectedSize.price !== product.productPrice && (
@@ -187,7 +186,7 @@ const ProductDetail = () => {
                     <button
                       key={index}
                       onClick={() => setSelectedColor(color)}
-                      className={`w-12 h-12 rounded-full border-2 transition-all ${
+                      className={`w-8 md:w-11 h-8 md:h-11 rounded-full border-2 transition-all ${
                         selectedColor === color 
                           ? 'border-primary scale-110 shadow-lg' 
                           : 'border-gray-300 hover:border-gray-400'
