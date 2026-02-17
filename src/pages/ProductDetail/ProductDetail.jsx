@@ -102,7 +102,7 @@ const ProductDetail = () => {
           {/* Image Gallery */}
           <div className="space-y-4">
             {/* Main Image */}
-            <div className="aspect-square max-h-90 lg:aspect-4/3 lg:max-h-100 bg-white rounded-2xl overflow-hidden shadow-lg mx-auto">
+            <div className="aspect-square max-h-90 lg:aspect-4/3 lg:max-h-110 bg-white rounded-2xl overflow-hidden shadow-lg mx-auto">
               <img
                 src={
                   product.productImageUrls?.[selectedImage] || 
