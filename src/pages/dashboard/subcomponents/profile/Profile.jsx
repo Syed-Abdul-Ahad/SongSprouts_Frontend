@@ -710,14 +710,14 @@ const Profile = () => {
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <span className="font-bold text-lg whitespace-nowrap">+ ${addon.price}</span>
-                  <svg 
+                  {/* <svg 
                     className={`w-6 h-6 transition-transform `}
                     fill="none" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
+                  </svg> */}
                 </div>
               </button>
             </div>
