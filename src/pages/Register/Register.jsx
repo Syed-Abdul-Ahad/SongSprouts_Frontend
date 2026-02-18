@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { Link } from 'react-router-dom';
 import { authAPI } from '../../api/auth';
-import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
@@ -14,8 +13,6 @@ const Register = () => {
     password: '',
   });
   const [isLoading, setIsLoading] = useState(false);
-  const { setUser } = useAuth();
-  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -41,7 +38,6 @@ const Register = () => {
           role: 'artist',
         });
         const user = data.user;
-        setUser(user);
         
         // Store current user ID in localStorage for OrderContext
         if (user?._id) {
@@ -51,8 +47,9 @@ const Register = () => {
         localStorage.removeItem('songOrderData');
         
         toast.success('Account created successfully!');
-        // Redirect to artist onboarding page
-        navigate('/artist-onboarding');
+        
+        // Force reload to properly initialize auth state
+        window.location.href = '/artist-onboarding';
       } catch (error) {
         toast.error(error.response?.data?.message || 'Registration failed. Please try again.');
       } finally {
@@ -175,13 +172,12 @@ const Register = () => {
 
             <p className="text-center text-sm text-gray-600">
               Already have an account?{' '}
-              <button
-                type="button"
-                onClick={() => navigate('/login')}
+              <Link
+                to="/login"
                 className="text-primary font-medium hover:underline"
               >
                 Sign In here
-              </button>
+              </Link>
             </p>
           </form>
         </div>

@@ -16,30 +16,77 @@ import ReviewAndPay from '../pages/Review & Pay/ReviewAndPay';
 import ProductDetail from '../pages/ProductDetail/ProductDetail';
 
 const AppRoutes = () => {
-  const { isAuthenticated, user } = useAuth();
-  const isArtist = user?.role.includes('artist');
-  console.log(isArtist)
+  const { isAuthenticated, user, isVerifiedArtist } = useAuth();
+  const isArtist = user?.role?.includes('artist');
+  console.log('isArtist:', isArtist, 'isVerifiedArtist:', isVerifiedArtist);
+  
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/login" element={!isAuthenticated ? <Login /> : (isArtist ? <Navigate to="/dashboard" replace /> : <Navigate to="/home" replace />)} />
+      <Route 
+        path="/login" 
+        element={
+          !isAuthenticated ? (
+            <Login />
+          ) : isArtist && !isVerifiedArtist ? (
+            <Navigate to="/artist-onboarding" replace />
+          ) : isArtist ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Navigate to="/home" replace />
+          )
+        } 
+      />
 
-      <Route path="/register" element={!isAuthenticated ? <Register /> : (isArtist ? <Navigate to="/dashboard" replace /> : <Navigate to="/home" replace />)} />
+      <Route 
+        path="/register" 
+        element={
+          !isAuthenticated ? (
+            <Register />
+          ) : isArtist && !isVerifiedArtist ? (
+            <Navigate to="/artist-onboarding" replace />
+          ) : isArtist ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Navigate to="/home" replace />
+          )
+        } 
+      />
       <Route path="/forgot-password" element={!isAuthenticated ? <ResetPassword /> : <Navigate to="/dashboard" replace />} />
       <Route path="/reset-password/:token" element={!isAuthenticated ? <CreateNewPassword /> : <Navigate to="/dashboard" replace />} />
-      <Route path="/artist-onboarding" element={isArtist ? <ArtistOnboarding /> : <Navigate to="/login" replace />} />
+      
+      {/* Artist Onboarding - only for authenticated unverified artists */}
+      <Route 
+        path="/artist-onboarding" 
+        element={
+          !isAuthenticated ? (
+            <Navigate to="/login" replace />
+          ) : !isArtist ? (
+            <Navigate to="/home" replace />
+          ) : isVerifiedArtist ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <ArtistOnboarding />
+          )
+        } 
+      />
+      
       <Route path="/pending-approval" element={<PendingApproval />} />
       
       {/* Protected Routes */}
       <Route
         path="/dashboard"
         element={
-          isArtist ? (
+          !isAuthenticated ? (
+            <Navigate to="/login" replace />
+          ) : !isArtist ? (
+            <Navigate to="/home" replace />
+          ) : !isVerifiedArtist ? (
+            <Navigate to="/artist-onboarding" replace />
+          ) : (
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
-          ) : (
-            <Navigate to="/home" replace />
           )
         }
       />

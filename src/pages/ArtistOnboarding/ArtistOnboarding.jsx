@@ -155,7 +155,7 @@ const ArtistOnboarding = () => {
       formDataToSend.append('socialLinks', JSON.stringify(socialLinks));
       
       // Submit to API
-      await artistAPI.updateProfile(user._id, formDataToSend);
+      await artistAPI.updateProfile(formDataToSend);
       
       toast.success('Profile updated successfully!');
       navigate('/pending-approval');
