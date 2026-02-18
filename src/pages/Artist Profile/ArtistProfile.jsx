@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../../components/Header';
 // import ProgressBar from '../../components/ProgressBar';
-import { ProfileHeader, ServicesOfferings } from './subcomponents';
+import { ProfileHeader, ServicesOfferings, MerchandiseSection } from './subcomponents';
 import { artistAPI } from '../../api/artist';
 import { showToast } from '../../utils/toast';
 import { useOrder } from '../../context/OrderContext';
@@ -13,6 +13,7 @@ const ArtistProfile = () => {
   const { orderData } = useOrder();
   const [artist, setArtist] = useState(null);
   const [loading, setLoading] = useState(true);
+  console.log(artist)
 
   const navigate = useNavigate();
 
@@ -59,7 +60,8 @@ const ArtistProfile = () => {
           memberSince: new Date(apiArtist.createdAt).getFullYear().toString(),
           services: transformServices(apiArtist.serviceOfferings),
           socialLinks: apiArtist.socialLinks || {},
-          addOns: apiArtist.addOns || []
+          addOns: apiArtist.addOns || [],
+          merchandise: apiArtist.merchandize || []
         };
 
         setArtist(transformedArtist);
@@ -128,6 +130,9 @@ const ArtistProfile = () => {
 
         {/* Services & Offerings Section */}
         <ServicesOfferings services={artist.services} />
+
+        {/* Merchandise Section */}
+        <MerchandiseSection merchandise={artist.merchandise} />
       </main>
     </div>
   );

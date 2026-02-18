@@ -24,8 +24,8 @@ export const authAPI = {
 
   // Logout user
   logout: async () => {
-    const response = await api.post('/auth/logout');
-    return response.data;
+    const response = await api.get('/auth/logout');
+    return response;
   },
 
   // Get current user

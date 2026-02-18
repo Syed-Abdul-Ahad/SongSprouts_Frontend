@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
 import { authAPI } from '../../api/auth';
-import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
@@ -10,8 +8,6 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { setUser } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,22 +15,20 @@ const Login = () => {
     
     try {
       const data = await authAPI.login({ email, password });
-      console.log('Login successful, user data:', data);
       const user = data?.data?.user;
-      setUser(user);
-      
-      // Store current user ID in localStorage for OrderContext
+
+      // Store current user ID in localStorage
       if (user?._id) {
         localStorage.setItem('currentUserId', user._id);
       }
-      // Clear any previous order data from different user
       localStorage.removeItem('songOrderData');
       
       toast.success('Login successful! Welcome back.');
-      navigate('/dashboard');
+      
+      // Force page reload to properly initialize auth state
+      window.location.href = '/dashboard';
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -86,13 +80,12 @@ const Login = () => {
             />
 
             <div className="text-right">
-              <button
-                type="button"
-                onClick={() => navigate('/forgot-password')}
+              <a
+                href="/forgot-password"
                 className="text-sm text-gray-600 hover:text-primary"
               >
                 Forgot password?
-              </button>
+              </a>
             </div>
 
             <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
@@ -101,13 +94,12 @@ const Login = () => {
 
             <p className="text-center text-sm text-gray-600">
               Don't have an account?{' '}
-              <button
-                type="button"
-                onClick={() => navigate('/register')}
+              <a
+                href="/register"
                 className="text-primary font-medium hover:underline"
               >
                 Sign up here
-              </button>
+              </a>
             </p>
           </form>
         </div>

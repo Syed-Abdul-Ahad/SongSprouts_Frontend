@@ -92,7 +92,7 @@ const ReviewAndPay = () => {
 
           {/* Order Summary Box */}
           <div className="bg-gray-50 rounded-2xl p-8 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Order Summary</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">Order Summary</h2>
             
             <div className="space-y-4">
               {/* Service Item */}
@@ -120,7 +120,7 @@ const ReviewAndPay = () => {
           {/* Current Total Display */}
           <div className="text-right mb-8">
             <p className="text-sm text-gray-600 mb-1">Current Total</p>
-            <p className="text-5xl font-bold text-gray-900">${grandTotal}</p>
+            <p className=" text-3xl md:text-5xl font-bold text-gray-900">${grandTotal}</p>
           </div>
 
           {/* Action Buttons */}

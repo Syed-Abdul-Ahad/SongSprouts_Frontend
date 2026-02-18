@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ProductCard = ({ product, onEdit, onDelete }) => {
   const [imageError, setImageError] = useState(false);
+  const navigate = useNavigate();
 
   // Handle both MongoDB _id and regular id
   const productId = product._id || product.id;
@@ -27,12 +29,19 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
     return colorMap[color] || color;
   };
 
+  const handleCardClick = () => {
+    navigate(`/product/${productId}`);
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group relative">
+    <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group relative hover:-translate-y-1">
       {/* Action Buttons */}
       <div className="absolute top-3 right-3 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
         <button
-          onClick={() => onEdit(productId)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(productId);
+          }}
           className="bg-white p-2 rounded-full shadow-lg hover:bg-blue-50 transition-colors duration-200"
           title="Edit Product"
         >
@@ -46,7 +55,10 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
           </svg>
         </button>
         <button
-          onClick={() => onDelete(productId)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(productId);
+          }}
           className="bg-white p-2 rounded-full shadow-lg hover:bg-red-50 transition-colors duration-200"
           title="Delete Product"
         >
@@ -65,8 +77,10 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
         </button>
       </div>
 
-      {/* Product Image */}
-      <div className="aspect-square overflow-hidden bg-gray-100">
+      {/* Clickable Product Content */}
+      <div onClick={handleCardClick} className="cursor-pointer">
+        {/* Product Image */}
+        <div className="aspect-square overflow-hidden bg-gray-100">
         {!imageError ? (
           <img
             src={product.productImageUrls?.[0] || product.productImages?.[0] || 'https://via.placeholder.com/400x400?text=No+Image'}
@@ -154,6 +168,8 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
           </div>
         )}
       </div>
+      {/* End Clickable Product Content */}
+    </div>
     </div>
   );
 };

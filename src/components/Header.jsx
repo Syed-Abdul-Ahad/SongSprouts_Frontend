@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { SlidersHorizontal } from 'lucide-react';
+import { authAPI } from '../api/auth';
 
 const Header = ({ 
   showSearch = false, 
@@ -14,7 +15,12 @@ const Header = ({
   const { user } = useAuth();
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  console.log(user)
+
+
+  const handleLogout = () => {   
+    const response = authAPI.logout();
+    window.location.href = '/login';
+  }
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -112,6 +118,10 @@ const Header = ({
               </button>
             </div>
           )}
+
+          <div className='bg-red-500 py-2 px-4 text-white rounded-full cursor-pointer hover:bg-red-600 transition-colors' onClick={() => handleLogout()}>
+            logout
+          </div>
 
           {/* Profile Avatar */}
           <button
